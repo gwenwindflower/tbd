@@ -36,6 +36,19 @@ type SourceTables struct {
 func main() {
 	form := huh.NewForm(
 		huh.NewGroup(
+			huh.NewNote().
+				Title("Welcome to tbd!🏎️✨").
+				Description(`A fast and friendly code generator for dbt.
+We will generate sources YAML config and SQL staging models for all the tables in the schema you specify.
+To prepare, make sure you have the following:
+✴︎ *_Username_* (e.g. aragorn@dunedain.king)
+✴︎ *_Account ID_* (e.g. elfstone-consulting.us-west-1)
+✴︎ *_Schema_* you want to generate (e.g. minas-tirith)
+✴︎ *_Database_* that schema is in (e.g. gondor)
+Authentication will be handled via SSO in the web browser.
+For security, we don't currently support password-based authentication.`),
+		),
+		huh.NewGroup(
 			huh.NewSelect[string]().
 				Title("Choose your warehouse.").
 				Options(
@@ -58,9 +71,10 @@ func main() {
 			huh.NewInput().
 				Title("What database is that schema in?").
 				Value(&dbDatabase),
-
+		),
+		huh.NewGroup(
 			huh.NewConfirm().
-				Title("Are you ready to proceed?").
+				Title("Are you ready to go?").
 				Value(&confirm),
 		),
 	)
