@@ -5,13 +5,20 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 	"text/template"
 )
 
 func WriteStagingModels(tables SourceTables) {
+	var wg sync.WaitGroup
+
+	fmt.Println("Writing staging models...")
 	for _, table := range tables.SourceTables {
+		wg.Add(1)
 		go func(table SourceTable) {
-			tmpl, err := template.ParseFiles("./template.sql")
+			defer wg.Done()
+
+			tmpl, err := template.ParseFiles("template.sql")
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -29,4 +36,5 @@ func WriteStagingModels(tables SourceTables) {
 			}
 		}(table)
 	}
+	wg.Wait()
 }

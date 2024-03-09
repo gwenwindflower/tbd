@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/charmbracelet/huh"
 	_ "github.com/snowflakedb/gosnowflake"
@@ -85,6 +86,12 @@ For security, we don't currently support password-based authentication.`),
 	}
 	if confirm {
 		databaseType := warehouse
+		if warehouse == "snowflake" {
+			dbAccount = strings.ToUpper(dbAccount)
+			dbUsername = strings.ToUpper(dbUsername)
+			dbSchema = strings.ToUpper(dbSchema)
+			dbDatabase = strings.ToUpper(dbDatabase)
+		}
 		connStr := fmt.Sprintf("%s@%s/%s/%s?authenticator=externalbrowser", dbUsername, dbAccount, dbDatabase, dbSchema)
 		ctx, db, err := ConnectToDB(connStr, databaseType)
 		if err != nil {
@@ -95,8 +102,8 @@ For security, we don't currently support password-based authentication.`),
 			log.Fatal(err)
 		}
 		PutColumnsOnTables(db, ctx, tables)
+		CleanBuildDir("build")
 		WriteYAML(tables)
-
 		WriteStagingModels(tables)
 	}
 }
