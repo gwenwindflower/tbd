@@ -3,19 +3,19 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
-	"time"
 
-	"github.com/briandowns/spinner"
+	"github.com/charmbracelet/huh"
 	_ "github.com/snowflakedb/gosnowflake"
 )
 
 // Connection details for Snowflake
 var (
-	dbUsername = os.Getenv("SNOWFLAKE_SANDBOX_USER")
-	dbAccount  = os.Getenv("SNOWFLAKE_SANDBOX_ACCOUNT")
-	dbSchema   = "DBT_WINNIE"
-	dbDatabase = "ANALYTICS"
+	confirm    bool
+	warehouse  string
+	dbUsername string
+	dbAccount  string
+	dbDatabase string
+	dbSchema   string
 )
 
 // Type definitions for the YAML file
@@ -34,24 +34,55 @@ type SourceTables struct {
 }
 
 func main() {
-	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
-	s.Start()
-	log.Println("Writing tables and columns to sources YAML...")
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[string]().
+				Title("Choose your warehouse.").
+				Options(
+					huh.NewOption("Snowflake", "snowflake"),
+				).
+				Value(&warehouse),
 
-	databaseType := "snowflake"
-	connStr := fmt.Sprintf("%s@%s/%s/%s?authenticator=externalbrowser", dbUsername, dbAccount, dbDatabase, dbSchema)
-	ctx, db, err := ConnectToDB(connStr, databaseType)
+			huh.NewInput().
+				Title("What is your username?").
+				Value(&dbUsername),
+
+			huh.NewInput().
+				Title("What is your Snowflake account id?").
+				Value(&dbAccount),
+
+			huh.NewInput().
+				Title("What is the schema you want to generate?").
+				Value(&dbSchema),
+
+			huh.NewInput().
+				Title("What database is that schema in?").
+				Value(&dbDatabase),
+
+			huh.NewConfirm().
+				Title("Are you ready to proceed?").
+				Value(&confirm),
+		),
+	)
+	form.WithTheme(huh.ThemeCatppuccin())
+	err := form.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	tables, err := GetTables(db, ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	PutColumnsOnTables(db, ctx, tables)
-	WriteYAML(tables)
+	if confirm {
+		databaseType := warehouse
+		connStr := fmt.Sprintf("%s@%s/%s/%s?authenticator=externalbrowser", dbUsername, dbAccount, dbDatabase, dbSchema)
+		ctx, db, err := ConnectToDB(connStr, databaseType)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tables, err := GetTables(db, ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+		PutColumnsOnTables(db, ctx, tables)
+		WriteYAML(tables)
 
-	log.Println("Writing staging models...")
-	WriteStagingModels(tables)
-	s.Stop()
+		WriteStagingModels(tables)
+	}
 }
