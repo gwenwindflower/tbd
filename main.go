@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/huh/spinner"
 	_ "github.com/snowflakedb/gosnowflake"
 )
 
@@ -38,14 +39,14 @@ type SourceTables struct {
 }
 
 func main() {
-	use_form := false
-	if use_form {
+	useForm := true
+	if useForm {
 		form := huh.NewForm(
 			huh.NewGroup(
 				huh.NewNote().
-					Title("Welcome to tbd!🏎️✨").
-					Description(`A fast and friendly code generator for dbt.
-We will generate sources YAML config and SQL staging models for all the tables in the schema you specify.
+					Title("🏁 Welcome to tbd! 🏎️✨").
+					Description(`A sweet and speedy code generator for dbt.
+We will generate source YAML config and SQL staging models for all the tables in the schema you specify.
 To prepare, make sure you have the following:
 ✴︎ *_Username_* (e.g. aragorn@dunedain.king)
 ✴︎ *_Account ID_* (e.g. elfstone-consulting.us-west-1)
@@ -98,6 +99,7 @@ For security, we don't currently support password-based authentication.`),
 		confirm = true
 	}
 	if confirm {
+		s := spinner.New()
 		databaseType := warehouse
 		if warehouse == "snowflake" {
 			dbAccount = strings.ToUpper(dbAccount)
@@ -106,29 +108,32 @@ For security, we don't currently support password-based authentication.`),
 			dbDatabase = strings.ToUpper(dbDatabase)
 		}
 		connStr := fmt.Sprintf("%s@%s/%s/%s?authenticator=externalbrowser", dbUsername, dbAccount, dbDatabase, dbSchema)
-		ctx, db, err := ConnectToDB(connStr, databaseType)
-		if err != nil {
-			log.Fatal(err)
-		}
+		s.Action(func() {
+			ctx, db, err := ConnectToDB(connStr, databaseType)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		tables, err := GetTables(db, ctx)
-		if err != nil {
-			log.Fatal(err)
-		}
+			tables, err := GetTables(db, ctx)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		PutColumnsOnTables(db, ctx, tables)
-		CleanBuildDir("build")
+			PutColumnsOnTables(db, ctx, tables)
+			CleanBuildDir("build")
 
-		var wg sync.WaitGroup
-		wg.Add(2)
-		go func() {
-			defer wg.Done()
-			WriteYAML(tables)
-		}()
-		go func() {
-			defer wg.Done()
-			WriteStagingModels(tables)
-		}()
-		wg.Wait()
+			var wg sync.WaitGroup
+			wg.Add(2)
+			go func() {
+				defer wg.Done()
+				WriteYAML(tables)
+			}()
+			go func() {
+				defer wg.Done()
+				WriteStagingModels(tables)
+			}()
+			wg.Wait()
+		}).Title("🏎️✨ Generating YAML and SQL files...").Run()
+		fmt.Println("🏁 Done! Your YAML and SQL files are in the build directory.")
 	}
 }

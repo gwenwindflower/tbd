@@ -11,7 +11,6 @@ import (
 func WriteStagingModels(tables SourceTables) {
 	var wg sync.WaitGroup
 
-	fmt.Println("Writing staging models...")
 	for _, table := range tables.SourceTables {
 		wg.Add(1)
 		go func(table SourceTable) {
