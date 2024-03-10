@@ -8,7 +8,7 @@ import (
 	"text/template"
 )
 
-func WriteStagingModels(tables SourceTables) {
+func WriteStagingModels(tables SourceTables, buildDir string) {
 	var wg sync.WaitGroup
 
 	for _, table := range tables.SourceTables {
@@ -22,7 +22,15 @@ func WriteStagingModels(tables SourceTables) {
 				panic(err)
 			}
 
-			filename := fmt.Sprintf("build/stg_" + strings.ToLower(table.Name) + ".sql")
+			_, err = os.Stat(buildDir)
+			if os.IsNotExist(err) {
+				errDir := os.MkdirAll(buildDir, 0755)
+				if errDir != nil {
+					panic(err)
+				}
+			}
+
+			filename := fmt.Sprintf(buildDir + "/stg_" + strings.ToLower(table.Name) + ".sql")
 			outputFile, err := os.Create(filename)
 			if err != nil {
 				panic(err)

@@ -20,6 +20,7 @@ var (
 	dbAccount  string
 	dbDatabase string
 	dbSchema   string
+	buildDir   string
 )
 
 // Type definitions for the YAML file
@@ -78,6 +79,9 @@ For security, we don't currently support password-based authentication.`),
 				huh.NewInput().
 					Title("What database is that schema in?").
 					Value(&dbDatabase),
+				huh.NewInput().
+					Title("What directory do you want to build into?\n🚧 Name a new or empty directory 🚧").
+					Value(&buildDir),
 			),
 			huh.NewGroup(
 				huh.NewConfirm().
@@ -120,17 +124,17 @@ For security, we don't currently support password-based authentication.`),
 			}
 
 			PutColumnsOnTables(db, ctx, tables)
-			CleanBuildDir("build")
+			CleanBuildDir(buildDir)
 
 			var wg sync.WaitGroup
 			wg.Add(2)
 			go func() {
 				defer wg.Done()
-				WriteYAML(tables)
+				WriteYAML(tables, buildDir)
 			}()
 			go func() {
 				defer wg.Done()
-				WriteStagingModels(tables)
+				WriteStagingModels(tables, buildDir)
 			}()
 			wg.Wait()
 		}).Title("🏎️✨ Generating YAML and SQL files...").Run()
