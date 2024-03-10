@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"sync"
@@ -18,9 +17,10 @@ func WriteStagingModels(tables SourceTables) {
 		go func(table SourceTable) {
 			defer wg.Done()
 
-			tmpl, err := template.ParseFiles("template.sql")
+			tmpl := template.New("staging_template.sql").Funcs(template.FuncMap{"lower": strings.ToLower})
+			tmpl, err := tmpl.ParseFiles("staging_template.sql")
 			if err != nil {
-				log.Fatal(err)
+				panic(err)
 			}
 
 			filename := fmt.Sprintf("build/stg_" + strings.ToLower(table.Name) + ".sql")

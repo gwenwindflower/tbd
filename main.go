@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
+	"sync"
 
 	"github.com/charmbracelet/huh"
 	_ "github.com/snowflakedb/gosnowflake"
@@ -26,8 +28,9 @@ type Column struct {
 }
 
 type SourceTable struct {
-	Name    string   `yaml:"name"`
-	Columns []Column `yaml:"columns"`
+	Name           string              `yaml:"name"`
+	Columns        []Column            `yaml:"columns"`
+	DataTypeGroups map[string][]Column `yaml:"-"`
 }
 
 type SourceTables struct {
@@ -35,11 +38,13 @@ type SourceTables struct {
 }
 
 func main() {
-	form := huh.NewForm(
-		huh.NewGroup(
-			huh.NewNote().
-				Title("Welcome to tbd!🏎️✨").
-				Description(`A fast and friendly code generator for dbt.
+	use_form := false
+	if use_form {
+		form := huh.NewForm(
+			huh.NewGroup(
+				huh.NewNote().
+					Title("Welcome to tbd!🏎️✨").
+					Description(`A fast and friendly code generator for dbt.
 We will generate sources YAML config and SQL staging models for all the tables in the schema you specify.
 To prepare, make sure you have the following:
 ✴︎ *_Username_* (e.g. aragorn@dunedain.king)
@@ -48,41 +53,49 @@ To prepare, make sure you have the following:
 ✴︎ *_Database_* that schema is in (e.g. gondor)
 Authentication will be handled via SSO in the web browser.
 For security, we don't currently support password-based authentication.`),
-		),
-		huh.NewGroup(
-			huh.NewSelect[string]().
-				Title("Choose your warehouse.").
-				Options(
-					huh.NewOption("Snowflake", "snowflake"),
-				).
-				Value(&warehouse),
+			),
+			huh.NewGroup(
+				huh.NewSelect[string]().
+					Title("Choose your warehouse.").
+					Options(
+						huh.NewOption("Snowflake", "snowflake"),
+					).
+					Value(&warehouse),
 
-			huh.NewInput().
-				Title("What is your username?").
-				Value(&dbUsername),
+				huh.NewInput().
+					Title("What is your username?").
+					Value(&dbUsername),
 
-			huh.NewInput().
-				Title("What is your Snowflake account id?").
-				Value(&dbAccount),
+				huh.NewInput().
+					Title("What is your Snowflake account id?").
+					Value(&dbAccount),
 
-			huh.NewInput().
-				Title("What is the schema you want to generate?").
-				Value(&dbSchema),
+				huh.NewInput().
+					Title("What is the schema you want to generate?").
+					Value(&dbSchema),
 
-			huh.NewInput().
-				Title("What database is that schema in?").
-				Value(&dbDatabase),
-		),
-		huh.NewGroup(
-			huh.NewConfirm().
-				Title("Are you ready to go?").
-				Value(&confirm),
-		),
-	)
-	form.WithTheme(huh.ThemeCatppuccin())
-	err := form.Run()
-	if err != nil {
-		log.Fatal(err)
+				huh.NewInput().
+					Title("What database is that schema in?").
+					Value(&dbDatabase),
+			),
+			huh.NewGroup(
+				huh.NewConfirm().
+					Title("Are you ready to go?").
+					Value(&confirm),
+			),
+		)
+		form.WithTheme(huh.ThemeCatppuccin())
+		err := form.Run()
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		warehouse = "snowflake"
+		dbUsername = os.Getenv("SNOWFLAKE_SANDBOX_USER")
+		dbAccount = os.Getenv("SNOWFLAKE_SANDBOX_ACCOUNT")
+		dbDatabase = "ANALYTICS"
+		dbSchema = "JAFFLE_SHOP_RAW"
+		confirm = true
 	}
 	if confirm {
 		databaseType := warehouse
@@ -97,13 +110,25 @@ For security, we don't currently support password-based authentication.`),
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		tables, err := GetTables(db, ctx)
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		PutColumnsOnTables(db, ctx, tables)
 		CleanBuildDir("build")
-		WriteYAML(tables)
-		WriteStagingModels(tables)
+
+		var wg sync.WaitGroup
+		wg.Add(2)
+		go func() {
+			defer wg.Done()
+			WriteYAML(tables)
+		}()
+		go func() {
+			defer wg.Done()
+			WriteStagingModels(tables)
+		}()
+		wg.Wait()
 	}
 }
