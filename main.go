@@ -6,33 +6,36 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
-	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/huh/spinner"
 	_ "github.com/snowflakedb/gosnowflake"
 )
 
 // Connection details for Snowflake
 var (
-	confirm    bool
-	warehouse  string
-	dbUsername string
-	dbAccount  string
-	dbDatabase string
-	dbSchema   string
-	buildDir   string
+	confirm              bool
+	warehouse            string
+	dbUsername           string
+	dbAccount            string
+	dbDatabase           string
+	dbSchema             string
+	buildDir             string
+	generateDescriptions bool
+	groqKeyEnvVar        string
 )
 
 // Type definitions for the YAML file
 type Column struct {
-	Name     string `yaml:"name"`
-	DataType string `yaml:"data_type"`
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+	DataType    string `yaml:"data_type"`
 }
 
 type SourceTable struct {
+	DataTypeGroups map[string][]Column `yaml:"-"`
 	Name           string              `yaml:"name"`
 	Columns        []Column            `yaml:"columns"`
-	DataTypeGroups map[string][]Column `yaml:"-"`
 }
 
 type SourceTables struct {
@@ -42,102 +45,66 @@ type SourceTables struct {
 func main() {
 	useForm := true
 	if useForm {
-		form := huh.NewForm(
-			huh.NewGroup(
-				huh.NewNote().
-					Title("🏁 Welcome to tbd! 🏎️✨").
-					Description(`A sweet and speedy code generator for dbt.
-We will generate source YAML config and SQL staging models for all the tables in the schema you specify.
-To prepare, make sure you have the following:
-✴︎ *_Username_* (e.g. aragorn@dunedain.king)
-✴︎ *_Account ID_* (e.g. elfstone-consulting.us-west-1)
-✴︎ *_Schema_* you want to generate (e.g. minas-tirith)
-✴︎ *_Database_* that schema is in (e.g. gondor)
-Authentication will be handled via SSO in the web browser.
-For security, we don't currently support password-based authentication.`),
-			),
-			huh.NewGroup(
-				huh.NewSelect[string]().
-					Title("Choose your warehouse.").
-					Options(
-						huh.NewOption("Snowflake", "snowflake"),
-					).
-					Value(&warehouse),
-
-				huh.NewInput().
-					Title("What is your username?").
-					Value(&dbUsername),
-
-				huh.NewInput().
-					Title("What is your Snowflake account id?").
-					Value(&dbAccount),
-
-				huh.NewInput().
-					Title("What is the schema you want to generate?").
-					Value(&dbSchema),
-
-				huh.NewInput().
-					Title("What database is that schema in?").
-					Value(&dbDatabase),
-				huh.NewInput().
-					Title("What directory do you want to build into?\n🚧 Name a new or empty directory 🚧").
-					Value(&buildDir),
-			),
-			huh.NewGroup(
-				huh.NewConfirm().
-					Title("Are you ready to go?").
-					Value(&confirm),
-			),
-		)
-		form.WithTheme(huh.ThemeCatppuccin())
-		err := form.Run()
-		if err != nil {
-			log.Fatal(err)
-		}
+		Forms()
 	} else {
 		warehouse = "snowflake"
 		dbUsername = os.Getenv("SNOWFLAKE_SANDBOX_USER")
 		dbAccount = os.Getenv("SNOWFLAKE_SANDBOX_ACCOUNT")
 		dbDatabase = "ANALYTICS"
 		dbSchema = "JAFFLE_SHOP_RAW"
+		buildDir = "build"
+		generateDescriptions = true
+		groqKeyEnvVar = "GROQ_API_KEY"
 		confirm = true
 	}
-	if confirm {
-		s := spinner.New()
-		databaseType := warehouse
-		if warehouse == "snowflake" {
-			dbAccount = strings.ToUpper(dbAccount)
-			dbUsername = strings.ToUpper(dbUsername)
-			dbSchema = strings.ToUpper(dbSchema)
-			dbDatabase = strings.ToUpper(dbDatabase)
-		}
-		connStr := fmt.Sprintf("%s@%s/%s/%s?authenticator=externalbrowser", dbUsername, dbAccount, dbDatabase, dbSchema)
-		s.Action(func() {
-			ctx, db, err := ConnectToDB(connStr, databaseType)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			tables, err := GetTables(db, ctx)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			PutColumnsOnTables(db, ctx, tables)
-			CleanBuildDir(buildDir)
-
-			var wg sync.WaitGroup
-			wg.Add(2)
-			go func() {
-				defer wg.Done()
-				WriteYAML(tables, buildDir)
-			}()
-			go func() {
-				defer wg.Done()
-				WriteStagingModels(tables, buildDir)
-			}()
-			wg.Wait()
-		}).Title("🏎️✨ Generating YAML and SQL files...").Run()
-		fmt.Println("🏁 Done! Your YAML and SQL files are in the build directory.")
+	if !confirm {
+		log.Fatal("⛔ User cancelled.")
 	}
+	databaseType := warehouse
+	if warehouse == "snowflake" {
+		dbAccount = strings.ToUpper(dbAccount)
+		dbUsername = strings.ToUpper(dbUsername)
+		dbSchema = strings.ToUpper(dbSchema)
+		dbDatabase = strings.ToUpper(dbDatabase)
+	}
+
+	s := spinner.New()
+
+	connStr := fmt.Sprintf("%s@%s/%s/%s?authenticator=externalbrowser", dbUsername, dbAccount, dbDatabase, dbSchema)
+	var (
+		connectionElapsed float64
+		processingElapsed float64
+	)
+	s.Action(func() {
+		connectionStart := time.Now()
+		ctx, db, err := ConnectToDB(connStr, databaseType)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tables, err := GetTables(db, ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+		connectionElapsed = time.Since(connectionStart).Seconds()
+		processingStart := time.Now()
+		PutColumnsOnTables(db, ctx, tables)
+		if generateDescriptions {
+			GenerateColumnDescriptions(tables)
+		}
+		CleanBuildDir(buildDir)
+		var wg sync.WaitGroup
+		wg.Add(2)
+		go func() {
+			defer wg.Done()
+			WriteYAML(tables, buildDir)
+		}()
+		go func() {
+			defer wg.Done()
+			WriteStagingModels(tables, buildDir)
+		}()
+		wg.Wait()
+		processingElapsed = time.Since(processingStart).Seconds()
+	}).Title("🏎️✨ Generating YAML and SQL files...").Run()
+	fmt.Printf("🏁 Done in %.1fs getting data from the db and %.1fs processing! ", connectionElapsed, processingElapsed)
+	fmt.Println("Your YAML and SQL files are in the build directory.")
 }

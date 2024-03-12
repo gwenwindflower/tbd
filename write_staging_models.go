@@ -1,12 +1,16 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"os"
 	"strings"
 	"sync"
 	"text/template"
 )
+
+//go:embed *.sql
+var stagingTemplate embed.FS
 
 func WriteStagingModels(tables SourceTables, buildDir string) {
 	var wg sync.WaitGroup
@@ -17,7 +21,7 @@ func WriteStagingModels(tables SourceTables, buildDir string) {
 			defer wg.Done()
 
 			tmpl := template.New("staging_template.sql").Funcs(template.FuncMap{"lower": strings.ToLower})
-			tmpl, err := tmpl.ParseFiles("staging_template.sql")
+			tmpl, err := tmpl.ParseFS(stagingTemplate, "staging_template.sql")
 			if err != nil {
 				panic(err)
 			}
