@@ -1,4 +1,4 @@
-package main
+package sourcerer
 
 import (
 	"context"
@@ -7,9 +7,10 @@ import (
 	"log"
 	"regexp"
 	"sync"
+	"tbd/shared"
 )
 
-func PutColumnsOnTables(db *sql.DB, ctx context.Context, tables SourceTables) {
+func PutColumnsOnTables(ctx context.Context, db *sql.DB, tables shared.SourceTables, connectionDetails shared.ConnectionDetails) {
 	mutex := sync.Mutex{}
 
 	var wg sync.WaitGroup
@@ -28,7 +29,7 @@ func PutColumnsOnTables(db *sql.DB, ctx context.Context, tables SourceTables) {
 		go func(i int) {
 			defer wg.Done()
 
-			columns, err := GetColumns(db, ctx, tables.SourceTables[i])
+			columns, err := GetColumns(db, ctx, tables.SourceTables[i], connectionDetails)
 			if err != nil {
 				log.Printf("Error fetching columns for table %s: %v\n", tables.SourceTables[i].Name, err)
 				return
@@ -36,7 +37,7 @@ func PutColumnsOnTables(db *sql.DB, ctx context.Context, tables SourceTables) {
 
 			mutex.Lock()
 			tables.SourceTables[i].Columns = columns
-			tables.SourceTables[i].DataTypeGroups = make(map[string][]Column)
+			tables.SourceTables[i].DataTypeGroups = make(map[string][]shared.Column)
 			// Create a map of data types groups to hold column slices by data type
 			// This lets us group columns by their data type e.g. in templates
 			for j := range tables.SourceTables[i].Columns {

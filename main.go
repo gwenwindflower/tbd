@@ -1,48 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
-	"strings"
 	"sync"
+	"tbd/sourcerer"
 	"time"
 
 	"github.com/charmbracelet/huh/spinner"
 	_ "github.com/snowflakedb/gosnowflake"
 )
-
-// Connection details for Snowflake
-var (
-	confirm              bool
-	warehouse            string
-	dbUsername           string
-	dbAccount            string
-	dbDatabase           string
-	dbSchema             string
-	buildDir             string
-	generateDescriptions bool
-	groqKeyEnvVar        string
-	useDbtProfile        bool
-	dbtProfile           string
-)
-
-// Type definitions for the YAML file
-type Column struct {
-	Name        string   `yaml:"name"`
-	Description string   `yaml:"description"`
-	DataType    string   `yaml:"data_type"`
-	Tests       []string `yaml:"tests"`
-}
-
-type SourceTable struct {
-	DataTypeGroups map[string][]Column `yaml:"-"`
-	Name           string              `yaml:"name"`
-	Columns        []Column            `yaml:"columns"`
-}
-
-type SourceTables struct {
-	SourceTables []SourceTable `yaml:"sources"`
-}
 
 type DbtProfile struct {
 	Target  string `yaml:"target"`
@@ -59,51 +27,39 @@ type DbtProfile struct {
 }
 
 func main() {
-	Forms()
-	if !confirm {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	formResponse := Forms()
+	if !formResponse.Confirm {
+		// TODO: Read up on error types in Go,
+		// do a pass on the full codebase to make them correct + consistent
 		log.Fatal("⛔ User cancelled.")
 	}
-	if useDbtProfile {
-		profile, err := GetDbtProfile(dbtProfile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		warehouse = profile.Outputs["dev"].Warehouse
-		dbUsername = strings.ToUpper(profile.Outputs["dev"].User)
-		dbAccount = strings.ToUpper(profile.Outputs["dev"].Account)
-		dbDatabase = strings.ToUpper(profile.Outputs["dev"].Database)
-		dbSchema = strings.ToUpper(profile.Outputs["dev"].Schema)
-	} else {
-		dbAccount = strings.ToUpper(dbAccount)
-		dbUsername = strings.ToUpper(dbUsername)
-		dbSchema = strings.ToUpper(dbSchema)
-		dbDatabase = strings.ToUpper(dbDatabase)
-	}
-
-	connStr := fmt.Sprintf("%s@%s/%s/%s?authenticator=externalbrowser", dbUsername, dbAccount, dbDatabase, dbSchema)
+	connectionDetails := SetConnectionDetails(formResponse)
 
 	var (
-		connectionElapsed float64
+		dbElapsed         float64
 		processingElapsed float64
 	)
 	s := spinner.New()
 	s.Action(func() {
 		connectionStart := time.Now()
-		ctx, db, err := ConnectToDB(connStr, warehouse)
+		buildDir := formResponse.BuildDir
+
+		tables, err := sourcerer.GetSources(ctx, connectionDetails)
 		if err != nil {
 			log.Fatal(err)
 		}
-		tables, err := GetTables(db, ctx, dbSchema)
-		if err != nil {
-			log.Fatal(err)
-		}
-		connectionElapsed = time.Since(connectionStart).Seconds()
+
+		dbElapsed = time.Since(connectionStart).Seconds()
+		// End of database interaction, start of processing
 		processingStart := time.Now()
-		PutColumnsOnTables(db, ctx, tables)
-		if generateDescriptions {
+
+		if formResponse.GenerateDescriptions {
 			GenerateColumnDescriptions(tables)
 		}
-		CleanBuildDir(buildDir)
+		PrepBuildDir(buildDir)
 		var wg sync.WaitGroup
 		wg.Add(2)
 		go func() {
@@ -117,6 +73,6 @@ func main() {
 		wg.Wait()
 		processingElapsed = time.Since(processingStart).Seconds()
 	}).Title("🏎️✨ Generating YAML and SQL files...").Run()
-	fmt.Printf("🏁 Done in %.1fs getting data from the db and %.1fs processing! ", connectionElapsed, processingElapsed)
+	fmt.Printf("🏁 Done in %.1fs getting data from the db and %.1fs processing! ", dbElapsed, processingElapsed)
 	fmt.Println("Your YAML and SQL files are in the build directory.")
 }

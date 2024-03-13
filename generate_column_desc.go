@@ -10,6 +10,7 @@ import (
 	"os"
 	"regexp"
 	"sync"
+	"tbd/shared"
 	"time"
 )
 
@@ -88,7 +89,7 @@ They will be nested under a 'tests' key in a YAML file, so no need to add a titl
 `
 )
 
-func GenerateColumnDescriptions(tables SourceTables) {
+func GenerateColumnDescriptions(tables shared.SourceTables) {
 	var wg sync.WaitGroup
 
 	semaphore := make(chan struct{}, maxRate)

@@ -6,7 +6,22 @@ import (
 	"github.com/charmbracelet/huh"
 )
 
-func Forms() {
+type FormResponse struct {
+	Confirm              bool
+	Warehouse            string
+	Username             string
+	Account              string
+	Database             string
+	Schema               string
+	BuildDir             string
+	GenerateDescriptions bool
+	GroqKeyEnvVar        string
+	UseDbtProfile        bool
+	DbtProfile           string
+}
+
+func Forms() (formResponse FormResponse) {
+	formResponse = FormResponse{}
 	intro_form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewNote().
@@ -34,45 +49,45 @@ You'll need:
 		huh.NewGroup(
 			huh.NewConfirm().
 				Title("Do you have a dbt profile you'd like to connect with?").
-				Value(&useDbtProfile),
+				Value(&formResponse.UseDbtProfile),
 		),
 	)
 	dbt_form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
 				Title("What is the dbt profile name you'd like to use?").
-				Value(&dbtProfile).
+				Value(&formResponse.DbtProfile).
 				Placeholder("snowflake_sandbox"),
 		),
 	)
-	main_form := huh.NewForm(
+	manual_form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewSelect[string]().
 				Title("Choose your warehouse.").
 				Options(
 					huh.NewOption("Snowflake", "snowflake"),
 				).
-				Value(&warehouse),
+				Value(&formResponse.Warehouse),
 
 			huh.NewInput().
 				Title("What is your username?").
-				Value(&dbUsername).Placeholder("aragorn@dunedain.king"),
+				Value(&formResponse.Username).Placeholder("aragorn@dunedain.king"),
 
 			huh.NewInput().
 				Title("What is your Snowflake account id?").
-				Value(&dbAccount).Placeholder("elfstone-consulting.us-west-1"),
+				Value(&formResponse.Account).Placeholder("elfstone-consulting.us-west-1"),
 
 			huh.NewInput().
 				Title("What is the schema you want to generate?").
-				Value(&dbSchema).Placeholder("minas-tirith"),
+				Value(&formResponse.Schema).Placeholder("minas-tirith"),
 
 			huh.NewInput().
 				Title("What database is that schema in?").
-				Value(&dbDatabase).Placeholder("gondor"),
+				Value(&formResponse.Database).Placeholder("gondor"),
 
 			huh.NewConfirm().
 				Title("Do you want to generate column descriptions via LLM?\n⚠️  Experimental ⚠️").
-				Value(&generateDescriptions),
+				Value(&formResponse.GenerateDescriptions),
 		),
 	)
 	llm_form := huh.NewForm(
@@ -80,38 +95,41 @@ You'll need:
 			huh.NewInput().
 				Title("What is the name of the env var you've stored your Groq API key in?").
 				Placeholder("GROQ_API_KEY").
-				Value(&groqKeyEnvVar),
+				Value(&formResponse.GroqKeyEnvVar),
 		),
 	)
 	confirm_form := huh.NewForm(
 		huh.NewGroup(
+			huh.NewNote().
+				Title("🚧🚨 Choose your build directory carefully! 🚨🚧").
+				Description("I highly recommend choosing a new or empty directory to build into on the next screen. If you use an existing directory, `tbd` will *overwrite* any existing files with the same name."),
 			huh.NewInput().
 				Title("What directory do you want to build into?\n🚧 Name a new or empty directory 🚧").
-				Value(&buildDir).Placeholder("build"),
+				Value(&formResponse.BuildDir).Placeholder("build"),
 
 			huh.NewConfirm().
 				Title("🚦Are you ready to do this thing?🚦").
-				Value(&confirm),
+				Value(&formResponse.Confirm),
 		),
 	)
 	intro_form.WithTheme(huh.ThemeCatppuccin())
 	dbt_form.WithTheme(huh.ThemeCatppuccin())
-	main_form.WithTheme(huh.ThemeCatppuccin())
+	manual_form.WithTheme(huh.ThemeCatppuccin())
 	llm_form.WithTheme(huh.ThemeCatppuccin())
 	confirm_form.WithTheme(huh.ThemeCatppuccin())
 	err := intro_form.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	if useDbtProfile {
+	if formResponse.UseDbtProfile {
 		err = dbt_form.Run()
 	} else {
-		err = main_form.Run()
+		err = manual_form.Run()
 	}
 	if err != nil {
 		log.Fatal(err)
 	}
-	if generateDescriptions {
+	if formResponse.GenerateDescriptions {
 		err = llm_form.Run()
 		if err != nil {
 			log.Fatal(err)
@@ -121,4 +139,5 @@ You'll need:
 	if err != nil {
 		log.Fatal(err)
 	}
+	return formResponse
 }
