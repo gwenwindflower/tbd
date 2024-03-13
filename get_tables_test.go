@@ -1,30 +1,60 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
-	"os"
 	"testing"
+
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 )
 
 func TestGetTables(t *testing.T) {
-	dbUsername = os.Getenv("SNOWFLAKE_SANDBOX_USERNAME")
-	dbAccount = os.Getenv("SNOWFLAKE_SANDBOX_ACCOUNT")
-	dbDatabase = "ANALYTICS"
-	dbSchema = "DBT_WINNIE"
-	databaseType := "snowflake"
-	connStr := fmt.Sprintf("%s@%s/%s/%s?authenticator=externalbrowser", dbUsername, dbAccount, dbDatabase, dbSchema)
-	ctx, db, err := ConnectToDB(connStr, databaseType)
+	db, mock, err := sqlmock.New()
 	if err != nil {
-		log.Fatal(err)
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
-	tables, err := GetTables(db, ctx)
+	defer db.Close()
+
+	ctx := context.TODO()
+
+	rows := sqlmock.NewRows([]string{"table_name"}).
+		AddRow("raw_orders").
+		AddRow("raw_order_items").
+		AddRow("raw_locations")
+
+	schema := "test_schema"
+	mock.ExpectQuery(fmt.Sprintf("SELECT table_name FROM information_schema.tables where table_schema = '%s'", schema)).WillReturnRows(rows)
+
+	result, err := GetTables(db, ctx, schema)
 	if err != nil {
-		t.Errorf("Error getting tables: %v", err)
+		t.Fatalf("error was not expected while retrieving tables: %s", err)
 	}
-	if len(tables.SourceTables) == 0 {
-		t.Errorf("No tables found")
-	} else {
-		t.Logf("%v tables found.", len(tables.SourceTables))
+
+	if len(result.SourceTables) != 3 || result.SourceTables[0].Name != "raw_orders" || result.SourceTables[1].Name != "raw_order_items" {
+		t.Errorf("result not match, got %+v", result)
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestGetTablesNoTablesInSchema(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	ctx := context.TODO()
+
+	schema := "test_schema"
+	mock.NewColumn("table_name")
+	mock.ExpectQuery(fmt.Sprintf("SELECT table_name FROM information_schema.tables where table_schema = '%s'", schema)).WillReturnError(err)
+	_, err = GetTables(db, ctx, schema)
+	if err == nil {
+		t.Fatalf("error was expected while retrieving tables")
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }

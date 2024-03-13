@@ -20,7 +20,7 @@ func GetDbtProfile(dbtProfile string) (*DbtProfile, error) {
 		yamlFile, err := os.ReadFile(path)
 		if err == nil {
 			if err := yaml.Unmarshal(yamlFile, &profileMap); err != nil {
-				log.Fatalf("Could not unmarshal dbt profile: %v", err)
+				log.Fatalf("could not unmarshal dbt profile: %v", err)
 			}
 
 			if profile, ok := profileMap[dbtProfile]; ok {
@@ -31,6 +31,6 @@ func GetDbtProfile(dbtProfile string) (*DbtProfile, error) {
 	if selectedProfile != nil {
 		return selectedProfile, nil
 	} else {
-		return nil, fmt.Errorf("Could not find profile: %s", dbtProfile)
+		return nil, fmt.Errorf("could not find profile: %s", dbtProfile)
 	}
 }

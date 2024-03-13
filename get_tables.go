@@ -4,15 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 )
 
-func GetTables(db *sql.DB, ctx context.Context) (SourceTables, error) {
+func GetTables(db *sql.DB, ctx context.Context, schema string) (SourceTables, error) {
 	tables := SourceTables{}
 
-	rows, err := db.QueryContext(ctx, fmt.Sprintf("SELECT table_name FROM information_schema.tables where table_schema = '%s'", dbSchema))
+	rows, err := db.QueryContext(ctx, fmt.Sprintf("SELECT table_name FROM information_schema.tables where table_schema = '%s'", schema))
 	if err != nil {
-		log.Fatal(err)
+		return tables, err
 	}
 	defer rows.Close()
 

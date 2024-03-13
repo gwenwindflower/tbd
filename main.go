@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -60,20 +59,7 @@ type DbtProfile struct {
 }
 
 func main() {
-	useForm := true
-	if useForm {
-		Forms()
-	} else {
-		warehouse = "snowflake"
-		dbUsername = os.Getenv("SNOWFLAKE_SANDBOX_USER")
-		dbAccount = os.Getenv("SNOWFLAKE_SANDBOX_ACCOUNT")
-		dbDatabase = "ANALYTICS"
-		dbSchema = "JAFFLE_SHOP_RAW"
-		buildDir = "build"
-		generateDescriptions = true
-		groqKeyEnvVar = "GROQ_API_KEY"
-		confirm = true
-	}
+	Forms()
 	if !confirm {
 		log.Fatal("⛔ User cancelled.")
 	}
@@ -107,7 +93,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		tables, err := GetTables(db, ctx)
+		tables, err := GetTables(db, ctx, dbSchema)
 		if err != nil {
 			log.Fatal(err)
 		}
