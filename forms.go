@@ -7,13 +7,15 @@ import (
 )
 
 func Forms() {
-	main_form := huh.NewForm(
+	intro_form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewNote().
 				Title("🏁 Welcome to tbd! 🏎️✨").
 				Description(`A sweet and speedy code generator for dbt.
 tbd will generate source YAML config and SQL staging models for all the tables in the schema you specify.
 To prepare, make sure you have the following:
+* An existing dbt profile.yml file to reference
+OR
 ✴︎ *_Username_* (e.g. aragorn@dunedain.king)
 ✴︎ *_Account ID_* (e.g. elfstone-consulting.us-west-1)
 ✴︎ *_Schema_* you want to generate (e.g. minas-tirith)
@@ -23,12 +25,27 @@ For security, we don't currently support password-based authentication.`),
 		),
 		huh.NewGroup(
 			huh.NewNote().
-				Title("⚠️  Experimental Feature: LLM Generation 🦙✨").
+				Title("⚠️ Experimental Feature: LLM Generation 🦙✨").
 				Description(`I'm currently exploring *_optional_* LLM-powered alpha features.
 At present this is limited to generating column descriptions via Groq.
 You'll need:
 ✴︎ A Groq API key stored in an environment variable.`),
 		),
+		huh.NewGroup(
+			huh.NewConfirm().
+				Title("Do you have a dbt profile you'd like to connect with?").
+				Value(&useDbtProfile),
+		),
+	)
+	dbt_form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewInput().
+				Title("What is the dbt profile name you'd like to use?").
+				Value(&dbtProfile).
+				Placeholder("snowflake_sandbox"),
+		),
+	)
+	main_form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewSelect[string]().
 				Title("Choose your warehouse.").
@@ -53,10 +70,6 @@ You'll need:
 				Title("What database is that schema in?").
 				Value(&dbDatabase).Placeholder("gondor"),
 
-			huh.NewInput().
-				Title("What directory do you want to build into?\n🚧 Name a new or empty directory 🚧").
-				Value(&buildDir).Placeholder("build"),
-
 			huh.NewConfirm().
 				Title("Do you want to generate column descriptions via LLM?\n⚠️  Experimental ⚠️").
 				Value(&generateDescriptions),
@@ -72,15 +85,29 @@ You'll need:
 	)
 	confirm_form := huh.NewForm(
 		huh.NewGroup(
+			huh.NewInput().
+				Title("What directory do you want to build into?\n🚧 Name a new or empty directory 🚧").
+				Value(&buildDir).Placeholder("build"),
+
 			huh.NewConfirm().
 				Title("🚦Are you ready to do this thing?🚦").
 				Value(&confirm),
 		),
 	)
+	intro_form.WithTheme(huh.ThemeCatppuccin())
+	dbt_form.WithTheme(huh.ThemeCatppuccin())
 	main_form.WithTheme(huh.ThemeCatppuccin())
 	llm_form.WithTheme(huh.ThemeCatppuccin())
 	confirm_form.WithTheme(huh.ThemeCatppuccin())
-	err := main_form.Run()
+	err := intro_form.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if useDbtProfile {
+		err = dbt_form.Run()
+	} else {
+		err = main_form.Run()
+	}
 	if err != nil {
 		log.Fatal(err)
 	}

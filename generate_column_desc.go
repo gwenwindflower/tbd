@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"sync"
 	"time"
 )
@@ -54,16 +55,45 @@ type GroqResponse struct {
 
 // Groq API constants
 const (
-	maxRate  = 30
-	interval = time.Minute
-	URL      = "https://api.groq.com/openai/v1/chat/completions"
+	maxRate     = 30
+	interval    = time.Minute
+	URL         = "https://api.groq.com/openai/v1/chat/completions"
+	desc_prompt = `Generate a description for a column in a specific table in a data warehouse,
+  the table is called %s and the column is called %s. The description should be concise, 1 to 3 sentences,
+  and inform both business users and technical data analyts about the purpose and contents of the column.
+  Avoid using the column name in the description, as it is redundant — put another way do not use tautological
+  descriptions, for example on an 'order_id' column saying "This is the id of an order". Don't do that. A good
+  example for an 'order_id' column would be something like "This is the primary key of the orders table,
+  each distinct order has a unique 'order_id'". Another good example for an orders table would be describing
+  'product_type' as "The category of product, the bucket that a product falls into, for example 'electronics' or 'clothing'".
+  Avoid making assumptions about the data, as you don't have access to it. Don't make assertions about data that you 
+  haven't seen, just use business context, the table name, and the column to generate the description. The description.
+  There is no need to add a title just the sentences that compose the description, it's being put onto a field in a YAML file, 
+so again, no title, no formatting, just 1 to 3 sentences.`
+	tests_prompt = `Generate a list of tests that can be run on a column in a specific table in a data warehouse,
+the table is called %s and the column is called %s. The tests are YAML config, there are 2 to choose from.
+They have the following structure, follow this structure exactly:
+  - unique
+  - not_null
+Return only the tests that are applicable to the column, for example, a column that is a primary key should have 
+both unique and not_null tests, while a column that is a foreign key should only have the not_null test. If a 
+column is potentially optional, then it should have neither test. Return only the tests that are applicable to the column.
+They will be nested under a 'tests' key in a YAML file, so no need to add a title or key, just the list of tests by themselves.
+  For example, a good response for a 'product_type' column in an 'orders' table would be:
+  - not_null
+
+  A good response for an 'order_id' column in an 'orders' table would be:
+  - unique
+  - not_null
+`
 )
 
 func GenerateColumnDescriptions(tables SourceTables) {
 	var wg sync.WaitGroup
 
 	semaphore := make(chan struct{}, maxRate)
-	limiter := time.NewTicker(interval / maxRate)
+	// We maek 2 calls so we divide the rate by 2
+	limiter := time.NewTicker(interval / (maxRate / 2))
 	defer limiter.Stop()
 
 	for i := range tables.SourceTables {
@@ -79,65 +109,85 @@ func GenerateColumnDescriptions(tables SourceTables) {
 
 				table_name := tables.SourceTables[i].Name
 				column_name := tables.SourceTables[i].Columns[j].Name
-				prompt := fmt.Sprintf(`Generate a description for a column in a specific table in a data warehouse,
-  the table is called %s and the column is called %s. The description should be concise, 1 to 3 sentences,
-  and inform both business users and technical data analyts about the purpose and contents of the column.
-  Avoid using the column name in the description, as it is redundant — put another way do not use tautological
-  descriptions, for example on an 'order_id' column saying "This is the id of an order". Don't do that. A good
-  example for an 'order_id' column would be something like "This is the primary key of the orders table,
-  each distinct order has a unique 'order_id'". Another good example for an orders table would be describing
-  'product_type' as "The category of product, the bucket that a product falls into, for example 'electronics' or 'clothing'".
-  Avoid making assumptions about the data, as you don't have access to it. Don't make assertions about data that you 
-  haven't seen, just use business context, the table name, and the column to generate the description. The description.
-  There is no need to add a title just the sentences that compose the description, it's being put onto a field in a YAML file, 
-so again, no title, no formatting, just 1 to 3 sentences.`,
-					table_name, column_name)
-
-				meta := Payload{
-					Messages: []Message{
-						{
-							Role:    "user",
-							Content: prompt,
-						},
-					},
-					Model:  "gemma-7b-it",
-					Temp:   0.5,
-					Tokens: 1024,
-					TopP:   1,
-					Stream: false,
-					Stop:   nil,
-				}
-				payload, err := json.Marshal(meta)
+				desc_prompt := fmt.Sprintf(desc_prompt, table_name, column_name)
+				tests_prompt := fmt.Sprintf(tests_prompt, table_name, column_name)
+				desc_resp, err := GetGroqResponse(desc_prompt)
 				if err != nil {
-					log.Fatalf("Failed to marshal JSON: %v", err)
+					log.Fatalf("Failed to get response from Groq for description: %v", err)
 				}
-				req, err := http.NewRequest(http.MethodPost, URL, bytes.NewBuffer(payload))
+				tests_resp, err := GetGroqResponse(tests_prompt)
 				if err != nil {
-					log.Fatalf("Unable to create request: %v", err)
+					log.Fatalf("Failed to get response from Groq for tests: %v", err)
 				}
-				req.Header.Set("Content-Type", "application/json")
-				req.Header.Set("Authorization", "Bearer "+os.Getenv("GROQ_API_KEY"))
-				client := http.Client{}
-				response, err := client.Do(req)
-				if err != nil {
-					log.Fatalf("Request failed: %v", err)
+				if len(desc_resp.Choices) > 0 {
+					tables.SourceTables[i].Columns[j].Description = desc_resp.Choices[0].Message.Content
 				}
-				defer response.Body.Close()
-
-				body, err := io.ReadAll(response.Body)
-				if err != nil {
-					log.Fatalf("Cannot read response body: %v", err)
-				}
-
-				var resp GroqResponse
-				err = json.Unmarshal(body, &resp)
-				if err != nil {
-					log.Fatalf("Failed to unmarshal JSON: %v", err)
-				}
-				if len(resp.Choices) > 0 {
-					tables.SourceTables[i].Columns[j].Description = resp.Choices[0].Message.Content
+				if len(tests_resp.Choices) > 0 {
+					r := regexp.MustCompile(`unique|not_null`)
+					matches := r.FindAllString(tests_resp.Choices[0].Message.Content, -1)
+					matches = Deduplicate(matches)
+					tables.SourceTables[i].Columns[j].Tests = matches
 				}
 			}(i, j)
 		}
 	}
+}
+
+func GetGroqResponse(prompt string) (GroqResponse, error) {
+	meta := Payload{
+		Messages: []Message{
+			{
+				Role:    "user",
+				Content: prompt,
+			},
+		},
+		Model:  "gemma-7b-it",
+		Temp:   0.5,
+		Tokens: 1024,
+		TopP:   1,
+		Stream: false,
+		Stop:   nil,
+	}
+	payload, err := json.Marshal(meta)
+	if err != nil {
+		log.Fatalf("Failed to marshal JSON: %v", err)
+	}
+	req, err := http.NewRequest(http.MethodPost, URL, bytes.NewBuffer(payload))
+	if err != nil {
+		log.Fatalf("Unable to create request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("GROQ_API_KEY"))
+	client := http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		log.Fatalf("Request failed: %v", err)
+	}
+	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Fatalf("Cannot read response body: %v", err)
+	}
+
+	var resp GroqResponse
+	err = json.Unmarshal(body, &resp)
+	if err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
+	return resp, nil
+}
+
+func Deduplicate(elements []string) []string {
+	encountered := map[string]bool{}
+	result := []string{}
+
+	for v := range elements {
+		if encountered[elements[v]] {
+		} else {
+			encountered[elements[v]] = true
+			result = append(result, elements[v])
+		}
+	}
+	return result
 }

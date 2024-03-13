@@ -23,13 +23,16 @@ var (
 	buildDir             string
 	generateDescriptions bool
 	groqKeyEnvVar        string
+	useDbtProfile        bool
+	dbtProfile           string
 )
 
 // Type definitions for the YAML file
 type Column struct {
-	Name        string `yaml:"name"`
-	Description string `yaml:"description"`
-	DataType    string `yaml:"data_type"`
+	Name        string   `yaml:"name"`
+	Description string   `yaml:"description"`
+	DataType    string   `yaml:"data_type"`
+	Tests       []string `yaml:"tests"`
 }
 
 type SourceTable struct {
@@ -40,6 +43,20 @@ type SourceTable struct {
 
 type SourceTables struct {
 	SourceTables []SourceTable `yaml:"sources"`
+}
+
+type DbtProfile struct {
+	Target  string `yaml:"target"`
+	Outputs map[string]struct {
+		Warehouse     string `yaml:"type"`
+		Account       string `yaml:"account"`
+		User          string `yaml:"user"`
+		Role          string `yaml:"role"`
+		Authenticator string `yaml:"authenticator"`
+		Database      string `yaml:"database"`
+		Schema        string `yaml:"schema"`
+		Threads       int    `yaml:"threads"`
+	} `yaml:"outputs"`
 }
 
 func main() {
@@ -60,24 +77,33 @@ func main() {
 	if !confirm {
 		log.Fatal("⛔ User cancelled.")
 	}
-	databaseType := warehouse
-	if warehouse == "snowflake" {
+	if useDbtProfile {
+		profile, err := GetDbtProfile(dbtProfile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		warehouse = profile.Outputs["dev"].Warehouse
+		dbUsername = strings.ToUpper(profile.Outputs["dev"].User)
+		dbAccount = strings.ToUpper(profile.Outputs["dev"].Account)
+		dbDatabase = strings.ToUpper(profile.Outputs["dev"].Database)
+		dbSchema = strings.ToUpper(profile.Outputs["dev"].Schema)
+	} else {
 		dbAccount = strings.ToUpper(dbAccount)
 		dbUsername = strings.ToUpper(dbUsername)
 		dbSchema = strings.ToUpper(dbSchema)
 		dbDatabase = strings.ToUpper(dbDatabase)
 	}
 
-	s := spinner.New()
-
 	connStr := fmt.Sprintf("%s@%s/%s/%s?authenticator=externalbrowser", dbUsername, dbAccount, dbDatabase, dbSchema)
+
 	var (
 		connectionElapsed float64
 		processingElapsed float64
 	)
+	s := spinner.New()
 	s.Action(func() {
 		connectionStart := time.Now()
-		ctx, db, err := ConnectToDB(connStr, databaseType)
+		ctx, db, err := ConnectToDB(connStr, warehouse)
 		if err != nil {
 			log.Fatal(err)
 		}
