@@ -15,7 +15,7 @@ import (
 type DbtProfile struct {
 	Target  string `yaml:"target"`
 	Outputs map[string]struct {
-		Warehouse     string `yaml:"type"`
+		ConnType      string `yaml:"type"`
 		Account       string `yaml:"account"`
 		User          string `yaml:"user"`
 		Role          string `yaml:"role"`
@@ -49,7 +49,7 @@ func main() {
 
 		tables, err := sourcerer.GetSources(ctx, connectionDetails)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Error getting sources: %v", err)
 		}
 
 		dbElapsed = time.Since(connectionStart).Seconds()

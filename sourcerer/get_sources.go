@@ -11,16 +11,22 @@ import (
 func GetSources(ctx context.Context, connectionDetails shared.ConnectionDetails) (shared.SourceTables, error) {
 	tables := shared.SourceTables{}
 
-	switch connectionDetails.Warehouse {
+	switch connectionDetails.ConnType {
 	case "snowflake":
 		{
 			dbConn := SnowflakeConnection{}
+			// Snowflake requires uppercase for all identifiers
+			connectionDetails.Username = strings.ToUpper(connectionDetails.Username)
+			connectionDetails.Account = strings.ToUpper(connectionDetails.Account)
+			connectionDetails.Database = strings.ToUpper(connectionDetails.Database)
+			connectionDetails.Schema = strings.ToUpper(connectionDetails.Schema)
+
 			db, cancel, err := dbConn.ConnectToDB(ctx, connectionDetails)
 			defer cancel()
 			if err != nil {
 				log.Fatalf("couldn't connect to database: %v", err)
 			}
-			rows, err := db.QueryContext(ctx, fmt.Sprintf("SELECT table_name FROM information_schema.tables where table_schema = '%s'", strings.ToUpper(connectionDetails.Schema)))
+			rows, err := db.QueryContext(ctx, fmt.Sprintf("SELECT table_name FROM information_schema.tables where table_schema = '%s'", connectionDetails.Schema))
 			if err != nil {
 				return tables, err
 			}
@@ -34,6 +40,10 @@ func GetSources(ctx context.Context, connectionDetails shared.ConnectionDetails)
 			}
 
 			PutColumnsOnTables(ctx, db, tables, connectionDetails)
+		}
+	default:
+		{
+			return tables, fmt.Errorf("unsupported warehouse: %s", connectionDetails.ConnType)
 		}
 	}
 	return tables, nil

@@ -18,6 +18,7 @@ type FormResponse struct {
 	GroqKeyEnvVar        string
 	UseDbtProfile        bool
 	DbtProfile           string
+	DbtProfileOutput     string
 }
 
 func Forms() (formResponse FormResponse) {
@@ -42,13 +43,16 @@ For security, we don't currently support password-based authentication.`),
 			huh.NewNote().
 				Title("⚠️ Experimental Feature: LLM Generation 🦙✨").
 				Description(`I'm currently exploring *_optional_* LLM-powered alpha features.
-At present this is limited to generating column descriptions via Groq.
+At present this is limited to generating column descriptions and inferring tests via Groq.
 You'll need:
 ✴︎ A Groq API key stored in an environment variable.`),
+			huh.NewConfirm().Affirmative("Sure!").Negative("Nope").
+				Title("Do you want to generate column descriptions and tests via LLM?").
+				Value(&formResponse.GenerateDescriptions),
 		),
 		huh.NewGroup(
-			huh.NewConfirm().
-				Title("Do you have a dbt profile you'd like to connect with?").
+			huh.NewConfirm().Affirmative("Yes!").Negative("Nah").
+				Title("Do you have a dbt profile you'd like to connect with?\n(you can enter your credentials manually if not)").
 				Value(&formResponse.UseDbtProfile),
 		),
 	)
@@ -58,6 +62,10 @@ You'll need:
 				Title("What is the dbt profile name you'd like to use?").
 				Value(&formResponse.DbtProfile).
 				Placeholder("snowflake_sandbox"),
+			huh.NewInput().
+				Title("Which 'output' in that profile do you want to use?").
+				Value(&formResponse.DbtProfileOutput).
+				Placeholder("dev"),
 		),
 	)
 	manual_form := huh.NewForm(
@@ -84,10 +92,6 @@ You'll need:
 			huh.NewInput().
 				Title("What database is that schema in?").
 				Value(&formResponse.Database).Placeholder("gondor"),
-
-			huh.NewConfirm().
-				Title("Do you want to generate column descriptions via LLM?\n⚠️  Experimental ⚠️").
-				Value(&formResponse.GenerateDescriptions),
 		),
 	)
 	llm_form := huh.NewForm(
@@ -98,16 +102,23 @@ You'll need:
 				Value(&formResponse.GroqKeyEnvVar),
 		),
 	)
-	confirm_form := huh.NewForm(
+	dir_form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewNote().
 				Title("🚧🚨 Choose your build directory carefully! 🚨🚧").
-				Description("I highly recommend choosing a new or empty directory to build into on the next screen. If you use an existing directory, `tbd` will *overwrite* any existing files with the same name."),
+				Description(`I highly recommend choosing a new or empty directory to build into.
+If you use an existing directory, tbd will overwrite any existing files with the same name.`),
+		),
+		huh.NewGroup(
 			huh.NewInput().
-				Title("What directory do you want to build into?\n🚧 Name a new or empty directory 🚧").
-				Value(&formResponse.BuildDir).Placeholder("build"),
-
-			huh.NewConfirm().
+				Title("What directory do you want to build into?").
+				Value(&formResponse.BuildDir).
+				Placeholder("build"),
+		),
+	)
+	confirm_form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewConfirm().Affirmative("Let's go!").Negative("Nevermind").
 				Title("🚦Are you ready to do this thing?🚦").
 				Value(&formResponse.Confirm),
 		),
@@ -116,6 +127,7 @@ You'll need:
 	dbt_form.WithTheme(huh.ThemeCatppuccin())
 	manual_form.WithTheme(huh.ThemeCatppuccin())
 	llm_form.WithTheme(huh.ThemeCatppuccin())
+	dir_form.WithTheme(huh.ThemeCatppuccin())
 	confirm_form.WithTheme(huh.ThemeCatppuccin())
 	err := intro_form.Run()
 	if err != nil {
@@ -134,6 +146,10 @@ You'll need:
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+	err = dir_form.Run()
+	if err != nil {
+		log.Fatal(err)
 	}
 	err = confirm_form.Run()
 	if err != nil {

@@ -13,19 +13,19 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 			log.Fatal(err)
 		}
 		connectionDetails = shared.ConnectionDetails{
-			Warehouse: profile.Outputs[formResponse.DbtProfile].Warehouse,
-			Username:  profile.Outputs[formResponse.DbtProfile].User,
-			Account:   profile.Outputs[formResponse.DbtProfile].Account,
-			Schema:    profile.Outputs[formResponse.DbtProfile].Schema,
-			Database:  profile.Outputs[formResponse.DbtProfile].Database,
+			ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
+			Username: profile.Outputs[formResponse.DbtProfileOutput].User,
+			Account:  profile.Outputs[formResponse.DbtProfileOutput].Account,
+			Schema:   profile.Outputs[formResponse.DbtProfileOutput].Schema,
+			Database: profile.Outputs[formResponse.DbtProfileOutput].Database,
 		}
 	} else {
 		connectionDetails = shared.ConnectionDetails{
-			Warehouse: formResponse.Warehouse,
-			Username:  formResponse.Username,
-			Account:   formResponse.Account,
-			Schema:    formResponse.Schema,
-			Database:  formResponse.Database,
+			ConnType: formResponse.Warehouse,
+			Username: formResponse.Username,
+			Account:  formResponse.Account,
+			Schema:   formResponse.Schema,
+			Database: formResponse.Database,
 		}
 	}
 	return connectionDetails

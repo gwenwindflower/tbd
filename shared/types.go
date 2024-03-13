@@ -18,9 +18,9 @@ type SourceTables struct {
 }
 
 type ConnectionDetails struct {
-	Warehouse string
-	Username  string
-	Account   string
-	Schema    string
-	Database  string
+	ConnType string
+	Username string
+	Account  string
+	Schema   string
+	Database string
 }
