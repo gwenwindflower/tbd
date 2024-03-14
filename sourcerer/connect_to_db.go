@@ -26,12 +26,6 @@ type BigQueryConnection struct {
 	Dataset string
 }
 
-type DuckDBConnection struct {
-	Path     string
-	Database string
-	Schema   string
-}
-
 func (sfc *SnowflakeConnection) ConnectToDB(ctx context.Context, connectionDetails shared.ConnectionDetails) (db *sql.DB, cancel context.CancelFunc, err error) {
 	connStr := fmt.Sprintf(
 		"%s@%s/%s/%s?authenticator=externalbrowser",
