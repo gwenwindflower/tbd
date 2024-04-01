@@ -131,7 +131,7 @@ If you use an existing directory, tbd will overwrite any existing files with the
 	confirm_form.WithTheme(huh.ThemeCatppuccin())
 	err := intro_form.Run()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error running intro form %v\n", err)
 	}
 	if formResponse.UseDbtProfile {
 		err = dbt_form.Run()
@@ -139,21 +139,21 @@ If you use an existing directory, tbd will overwrite any existing files with the
 		err = manual_form.Run()
 	}
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error running connectiond details form %v\n", err)
 	}
 	if formResponse.GenerateDescriptions {
 		err = llm_form.Run()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Error running LLM features form %v\n", err)
 		}
 	}
 	err = dir_form.Run()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error running build directory form %v\n", err)
 	}
 	err = confirm_form.Run()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error running confirmation form %v\n", err)
 	}
 	return formResponse
 }

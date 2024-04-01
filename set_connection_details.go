@@ -10,7 +10,7 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 	if formResponse.UseDbtProfile {
 		profile, err := GetDbtProfile(formResponse.DbtProfile)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Could not get dbt profile %v\n", err)
 		}
 		connectionDetails = shared.ConnectionDetails{
 			ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,

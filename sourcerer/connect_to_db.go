@@ -39,7 +39,7 @@ func (sfc *SnowflakeConnection) ConnectToDB(ctx context.Context, connectionDetai
 	defer cancel()
 	db, err = sql.Open("snowflake", connStr)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Could not connect to Snowflake %v\n", err)
 	}
 	return db, cancel, err
 }

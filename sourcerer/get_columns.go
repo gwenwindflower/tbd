@@ -21,7 +21,7 @@ func GetColumns(db *sql.DB, ctx context.Context, table shared.SourceTable, conne
 	for rows.Next() {
 		column := shared.Column{}
 		if err := rows.Scan(&column.Name, &column.DataType); err != nil {
-			return nil, err
+			log.Fatalf("Error scanning columns for table %s: %v\n", table.Name, err)
 		}
 		columns = append(columns, column)
 	}

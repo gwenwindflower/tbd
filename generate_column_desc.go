@@ -114,11 +114,11 @@ func GenerateColumnDescriptions(tables shared.SourceTables) {
 				tests_prompt := fmt.Sprintf(tests_prompt, table_name, column_name)
 				desc_resp, err := GetGroqResponse(desc_prompt)
 				if err != nil {
-					log.Fatalf("Failed to get response from Groq for description: %v", err)
+					log.Fatalf("Failed to get response from Groq for description: %v\n", err)
 				}
 				tests_resp, err := GetGroqResponse(tests_prompt)
 				if err != nil {
-					log.Fatalf("Failed to get response from Groq for tests: %v", err)
+					log.Fatalf("Failed to get response from Groq for tests: %v\n", err)
 				}
 				if len(desc_resp.Choices) > 0 {
 					tables.SourceTables[i].Columns[j].Description = desc_resp.Choices[0].Message.Content
@@ -151,30 +151,30 @@ func GetGroqResponse(prompt string) (GroqResponse, error) {
 	}
 	payload, err := json.Marshal(meta)
 	if err != nil {
-		log.Fatalf("Failed to marshal JSON: %v", err)
+		log.Fatalf("Failed to marshal JSON: %v\n", err)
 	}
 	req, err := http.NewRequest(http.MethodPost, URL, bytes.NewBuffer(payload))
 	if err != nil {
-		log.Fatalf("Unable to create request: %v", err)
+		log.Fatalf("Unable to create request: %v\n", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("GROQ_API_KEY"))
 	client := http.Client{}
 	response, err := client.Do(req)
 	if err != nil {
-		log.Fatalf("Request failed: %v", err)
+		log.Fatalf("Request failed: %v\n", err)
 	}
 	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		log.Fatalf("Cannot read response body: %v", err)
+		log.Fatalf("Cannot read response body: %v\n", err)
 	}
 
 	var resp GroqResponse
 	err = json.Unmarshal(body, &resp)
 	if err != nil {
-		log.Fatalf("Failed to unmarshal JSON: %v", err)
+		log.Fatalf("Failed to unmarshal JSON: %v\n", err)
 	}
 	return resp, nil
 }

@@ -24,21 +24,20 @@ func GetSources(ctx context.Context, connectionDetails shared.ConnectionDetails)
 			db, cancel, err := dbConn.ConnectToDB(ctx, connectionDetails)
 			defer cancel()
 			if err != nil {
-				log.Fatalf("couldn't connect to database: %v", err)
+				log.Fatalf("Couldn't connect to database: %v\n", err)
 			}
 			rows, err := db.QueryContext(ctx, fmt.Sprintf("SELECT table_name FROM information_schema.tables where table_schema = '%s'", connectionDetails.Schema))
 			if err != nil {
-				return tables, err
+				log.Fatalf("Error fetching tables: %v\n", err)
 			}
 			defer rows.Close()
 			for rows.Next() {
 				var table shared.SourceTable
 				if err := rows.Scan(&table.Name); err != nil {
-					return tables, err
+					log.Fatalf("Error scanning tables: %v\n", err)
 				}
 				tables.SourceTables = append(tables.SourceTables, table)
 			}
-
 			PutColumnsOnTables(ctx, db, tables, connectionDetails)
 		}
 	default:

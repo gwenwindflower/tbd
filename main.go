@@ -32,8 +32,6 @@ func main() {
 
 	formResponse := Forms()
 	if !formResponse.Confirm {
-		// TODO: Read up on error types in Go,
-		// do a pass on the full codebase to make them correct + consistent
 		log.Fatal("⛔ User cancelled.")
 	}
 	connectionDetails := SetConnectionDetails(formResponse)
@@ -49,7 +47,7 @@ func main() {
 
 		tables, err := sourcerer.GetSources(ctx, connectionDetails)
 		if err != nil {
-			log.Fatalf("Error getting sources: %v", err)
+			log.Fatalf("Error getting sources: %v\n", err)
 		}
 
 		dbElapsed = time.Since(connectionStart).Seconds()

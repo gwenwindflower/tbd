@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"sync"
@@ -24,19 +25,19 @@ func WriteStagingModels(tables shared.SourceTables, buildDir string) {
 			tmpl := template.New("staging_template.sql").Funcs(template.FuncMap{"lower": strings.ToLower})
 			tmpl, err := tmpl.ParseFS(stagingTemplate, "staging_template.sql")
 			if err != nil {
-				panic(err)
+				log.Fatalf("Failed to parse template %v\n", err)
 			}
 
 			filename := fmt.Sprintf(buildDir + "/stg_" + strings.ToLower(table.Name) + ".sql")
 			outputFile, err := os.Create(filename)
 			if err != nil {
-				panic(err)
+				log.Fatalf("Failed to create file %v\n", err)
 			}
 			defer outputFile.Close()
 
 			err = tmpl.Execute(outputFile, table)
 			if err != nil {
-				panic(err)
+				log.Fatalf("Failed to execute template %v\n", err)
 			}
 		}(table)
 	}

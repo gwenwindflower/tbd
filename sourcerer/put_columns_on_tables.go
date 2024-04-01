@@ -31,7 +31,7 @@ func PutColumnsOnTables(ctx context.Context, db *sql.DB, tables shared.SourceTab
 
 			columns, err := GetColumns(db, ctx, tables.SourceTables[i], connectionDetails)
 			if err != nil {
-				log.Printf("Error fetching columns for table %s: %v\n", tables.SourceTables[i].Name, err)
+				log.Fatalf("Error fetching columns for table %s: %v\n", tables.SourceTables[i].Name, err)
 				return
 			}
 
