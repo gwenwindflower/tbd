@@ -41,7 +41,7 @@ func main() {
 		processingElapsed float64
 	)
 	s := spinner.New()
-	s.Action(func() {
+	err := s.Action(func() {
 		connectionStart := time.Now()
 		buildDir := formResponse.BuildDir
 
@@ -71,6 +71,9 @@ func main() {
 		wg.Wait()
 		processingElapsed = time.Since(processingStart).Seconds()
 	}).Title("🏎️✨ Generating YAML and SQL files...").Run()
+	if err != nil {
+		log.Fatalf("Error running spinner action: %v\n", err)
+	}
 	fmt.Printf("🏁 Done in %.1fs getting data from the db and %.1fs processing! ", dbElapsed, processingElapsed)
 	fmt.Println("Your YAML and SQL files are in the build directory.")
 }
