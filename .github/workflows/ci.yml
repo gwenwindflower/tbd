@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: macos-latest
+    steps:
+      - name: Setup Go environment
+        uses: actions/setup-go@v5.0.0
+      - name: Lint code
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.57.2
+          golangci-lint run
+      - name: Run tests
+        run: go test
