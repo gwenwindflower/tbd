@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/bigquery"
+	_ "github.com/snowflakedb/gosnowflake"
 )
 
 func (sfc *SfConn) ConnectToDB(ctx context.Context) (err error) {
