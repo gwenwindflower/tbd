@@ -16,10 +16,10 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 			ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
 			Username: profile.Outputs[formResponse.DbtProfileOutput].User,
 			Account:  profile.Outputs[formResponse.DbtProfileOutput].Account,
-			Schema:   profile.Outputs[formResponse.DbtProfileOutput].Schema,
+			Schema:   formResponse.Schema,
 			Database: profile.Outputs[formResponse.DbtProfileOutput].Database,
 			Project:  profile.Outputs[formResponse.DbtProfileOutput].Project,
-			Dataset:  profile.Outputs[formResponse.DbtProfileOutput].Dataset,
+			Dataset:  formResponse.Schema,
 		}
 	} else {
 		connectionDetails = shared.ConnectionDetails{

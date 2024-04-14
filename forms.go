@@ -33,8 +33,8 @@ func Forms() (formResponse FormResponse) {
 Currently supports _Snowflake_ and _BigQuery_.
 
 Generates:
-- YAML sources config
-- SQL staging models
+✴︎ YAML sources config
+✴︎ SQL staging models
 For each table in the designated schema/dataset.
 
 To prepare, make sure you have the following:
@@ -54,8 +54,8 @@ Platform-specific requirements:
 				Description(`*_Optional_* LLM-powered alpha features.
 
 Currently generates: 
-- column _descriptions_
-- relevant _tests_
+✴︎ column _descriptions_
+✴︎ relevant _tests_
 via the Groq API.
 
 You'll need:
@@ -81,6 +81,9 @@ You'll need:
 				Title("Which 'output' in that profile do you want to use?").
 				Value(&formResponse.DbtProfileOutput).
 				Placeholder("dev"),
+			huh.NewInput().
+				Title("What schema/dataset do you want to generate?").
+				Value(&formResponse.Schema),
 		),
 	)
 	warehouse_form := huh.NewForm(

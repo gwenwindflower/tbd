@@ -11,22 +11,6 @@ import (
 	"github.com/charmbracelet/huh/spinner"
 )
 
-type DbtProfile struct {
-	Target  string `yaml:"target"`
-	Outputs map[string]struct {
-		ConnType      string `yaml:"type"`
-		Account       string `yaml:"account"`
-		User          string `yaml:"user"`
-		Role          string `yaml:"role"`
-		Authenticator string `yaml:"authenticator"`
-		Database      string `yaml:"database"`
-		Schema        string `yaml:"schema"`
-		Project       string `yaml:"project"`
-		Dataset       string `yaml:"dataset"`
-		Threads       int    `yaml:"threads"`
-	} `yaml:"outputs"`
-}
-
 type Elapsed struct {
 	DbStart           time.Time
 	DbElapsed         float64
