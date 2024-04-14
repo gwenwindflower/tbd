@@ -18,23 +18,27 @@ _Disclaimer: This project is not affiliated with dbt Labs in any way. It is a pe
 
 ## Installation
 
-For the time being this project ideally requires `go`. When I've gotten test coverage up to a reasonable level and covered another dbt adapter or two, I'll set up a Homebrew tap. In the meantime, you can install it with the following command:
+For the time being this project ideally requires `go`. When I've gotten test coverage up to a reasonable level and covered another warehouse or two, I'll set up a Homebrew tap. In the meantime, you can install it with the following command:
 
 ```bash
 go install github.com/gwenwindflower/tbd@latest
 ```
 
+That's it! It's a single binary, so you can run it from anywhere. It has no dependencies on `dbt` itself, for maximum speed it operates directly with your warehouse, so you don't even need to have `dbt` installed to use it. That said, it _can_ leverage the profiles in your `~/.dbt/profiles.yml` file if you have them set up, so you can use the same connection information to save yourself some typing.
+
 You can also download the binary from the [releases page](https://github.com/gwenwindflower/tbd/releases) and add it to your PATH if you're comfortable with that.
+
+If you're looking for a way to rapidly scaffold your dbt project before you use this tool to build your sources and staging models, check out [copier-dbt](https://github.com/gwenwindflower/copier-dbt).
 
 ## Usage
 
-The tool has a lovely TUI interface that you can use by running the following command:
+The tool has a lovely TUI interface that will walk you through the necessary steps. You can run it with the following command:
 
 ```bash
 tbd
 ```
 
-It will walk you through inputting the necessary information to generate your `_sources.yml` and staging models for any schema you point it at. The idea is you point it at your `raw` unmodeled schema(s), and it will generate the necessary files to get those models up and running in dbt.
+It will guide you through inputting the necessary information to generate your `_sources.yml` and staging models for any schema you point it at. The idea is you point it at your `raw` unmodeled schema(s), and it will generate the necessary files to get those models up and running in dbt.
 
 The output will be a directory with the following structure:
 
@@ -55,9 +59,11 @@ I will _definitely_ be adding other LLM providers in the future, probably Anthro
 
 ## To Do
 
-- [ ] Add more test coverage
+- [ ] Get to 100% test coverage
 - [ ] Add Claude 3 Opus option
 - [x] Add support for Snowflake
 - [x] Add support for BigQuery
 - [ ] Add support for Redshift
 - [ ] Add support for Databricks
+- [ ] Add support for Postgres
+- [x] Add support for DuckDB
