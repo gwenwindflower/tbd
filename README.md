@@ -14,7 +14,7 @@ _Disclaimer: This project is not affiliated with dbt Labs in any way. It is a pe
 - [ ] Redshift
 - [ ] Databricks
 - [ ] Postgres
-- [ ] DuckDB
+- [x] DuckDB
 
 ## Installation
 
