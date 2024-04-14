@@ -25,4 +25,5 @@ type ConnectionDetails struct {
 	Schema   string
 	Project  string
 	Dataset  string
+	Path     string
 }

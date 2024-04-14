@@ -29,7 +29,16 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 				connectionDetails = shared.ConnectionDetails{
 					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
 					Project:  profile.Outputs[formResponse.DbtProfileOutput].Project,
-					Dataset:  profile.Outputs[formResponse.DbtProfileOutput].Dataset,
+					Dataset:  formResponse.Schema,
+				}
+			}
+		case "duckdb":
+			{
+				connectionDetails = shared.ConnectionDetails{
+					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
+					Path:     profile.Outputs[formResponse.DbtProfileOutput].Path,
+					Database: profile.Outputs[formResponse.DbtProfileOutput].Database,
+					Schema:   formResponse.Schema,
 				}
 			}
 		default:
@@ -55,6 +64,15 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 					ConnType: formResponse.Warehouse,
 					Project:  formResponse.Project,
 					Dataset:  formResponse.Dataset,
+				}
+			}
+		case "duckdb":
+			{
+				connectionDetails = shared.ConnectionDetails{
+					ConnType: formResponse.Warehouse,
+					Path:     formResponse.Path,
+					Database: formResponse.Database,
+					Schema:   formResponse.Schema,
 				}
 			}
 		default:
