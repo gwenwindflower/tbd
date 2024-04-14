@@ -32,7 +32,7 @@ func Forms() (formResponse FormResponse) {
 			huh.NewNote().
 				Title("🏁 Welcome to tbd! 🏎️✨").
 				Description(fmt.Sprintf(`A sweet and speedy code generator for dbt.
-   ¸.•✴︎•.¸.•✴︎•.¸.•✴︎•. _%s_ .•✴︎•.¸.•✴︎•.¸.•✴︎•.¸
+¸.•✴︎•.¸.•✴︎•.¸.•✴︎•. _%s_ .•✴︎•.¸.•✴︎•.¸.•✴︎•.¸
 Currently supports *Snowflake*, *BigQuery*, and *DuckDB*.
 
 Generates:
