@@ -1,4 +1,4 @@
-# 🏁tbd🏎️✨
+# 🏁 tbd 🏎️✨
 
 ## A sweet and speedy code generator for dbt
 
