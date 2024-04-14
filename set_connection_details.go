@@ -29,7 +29,7 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 				connectionDetails = shared.ConnectionDetails{
 					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
 					Project:  profile.Outputs[formResponse.DbtProfileOutput].Project,
-					Dataset:  profile.Outputs[formResponse.DbtProfileOutput].Dataset,
+					Dataset:  formResponse.Schema,
 				}
 			}
 		case "duckdb":
