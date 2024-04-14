@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/gwenwindflower/tbd/shared"
@@ -47,27 +45,26 @@ type DuckConn struct {
 func GetConn(cd shared.ConnectionDetails) (DbConn, error) {
 	switch cd.ConnType {
 	case "snowflake":
-		// TODO: Why do I need to use a pointer here?
-		return &SfConn{
-			Account:  strings.ToUpper(cd.Account),
-			Username: strings.ToUpper(cd.Username),
-			Database: strings.ToUpper(cd.Database),
-			Schema:   strings.ToUpper(cd.Schema),
-		}, nil
+		{
+			// TODO: Why do I need to use a pointer here?
+			return &SfConn{
+				Account:  strings.ToUpper(cd.Account),
+				Username: strings.ToUpper(cd.Username),
+				Database: strings.ToUpper(cd.Database),
+				Schema:   strings.ToUpper(cd.Schema),
+			}, nil
+		}
 	case "bigquery":
-		return &BqConn{
-			Project: cd.Project,
-			Dataset: cd.Dataset,
-		}, nil
+		{
+			return &BqConn{
+				Project: cd.Project,
+				Dataset: cd.Dataset,
+			}, nil
+		}
 	case "duckdb":
 		{
-			wd, err := os.Getwd()
-			if err != nil {
-				return nil, err
-			}
-			p := filepath.Join(wd, cd.Path)
 			return &DuckConn{
-				Path:     p,
+				Path:     cd.Path,
 				Database: cd.Database,
 				Schema:   cd.Schema,
 			}, nil

@@ -57,3 +57,51 @@ func TestSetConnectionDetailsWithDbtProfile(t *testing.T) {
 		t.Errorf("got %v, want %v", connectionDetails, want)
 	}
 }
+
+func TestSetConnectionDetailsWithDuckDBDbtProfile(t *testing.T) {
+	CreateTempDbtProfile(t)
+	defer os.RemoveAll(os.Getenv("HOME"))
+	defer os.Unsetenv("HOME")
+	formResponse := FormResponse{
+		UseDbtProfile:        true,
+		DbtProfile:           "dwarf",
+		DbtProfileOutput:     "dev",
+		Schema:               "balins_tomb",
+		GenerateDescriptions: false,
+		BuildDir:             "test_build",
+		Confirm:              true,
+	}
+	connectionDetails := SetConnectionDetails(formResponse)
+	want := shared.ConnectionDetails{
+		ConnType: "duckdb",
+		Path:     "/usr/local/var/dwarf.db",
+		Database: "khazad_dum",
+		Schema:   "balins_tomb",
+	}
+	if connectionDetails != want {
+		t.Errorf("got %v, want %v", connectionDetails, want)
+	}
+}
+
+func TestSetConnectionDetailsWithDuckDBWithoutDbtProfile(t *testing.T) {
+	formResponse := FormResponse{
+		UseDbtProfile:        false,
+		Warehouse:            "duckdb",
+		Path:                 "dwarf.db",
+		Database:             "khazad_dum",
+		Schema:               "balins_tomb",
+		GenerateDescriptions: false,
+		BuildDir:             "test_build",
+		Confirm:              true,
+	}
+	connectionDetails := SetConnectionDetails(formResponse)
+	want := shared.ConnectionDetails{
+		ConnType: "duckdb",
+		Path:     "/Users/winnie/dev/tbd/dwarf.db",
+		Database: "khazad_dum",
+		Schema:   "balins_tomb",
+	}
+	if connectionDetails != want {
+		t.Errorf("got %v, want %v", connectionDetails, want)
+	}
+}

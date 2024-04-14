@@ -2,12 +2,14 @@ package main
 
 import (
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/gwenwindflower/tbd/shared"
 )
 
 func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
-	var connectionDetails shared.ConnectionDetails
+	var cd shared.ConnectionDetails
 	if formResponse.UseDbtProfile {
 		profile, err := GetDbtProfile(formResponse.DbtProfile)
 		if err != nil {
@@ -16,7 +18,7 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 		switch profile.Outputs[formResponse.DbtProfileOutput].ConnType {
 		case "snowflake":
 			{
-				connectionDetails = shared.ConnectionDetails{
+				cd = shared.ConnectionDetails{
 					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
 					Username: profile.Outputs[formResponse.DbtProfileOutput].User,
 					Account:  profile.Outputs[formResponse.DbtProfileOutput].Account,
@@ -26,7 +28,7 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 			}
 		case "bigquery":
 			{
-				connectionDetails = shared.ConnectionDetails{
+				cd = shared.ConnectionDetails{
 					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
 					Project:  profile.Outputs[formResponse.DbtProfileOutput].Project,
 					Dataset:  formResponse.Schema,
@@ -34,7 +36,7 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 			}
 		case "duckdb":
 			{
-				connectionDetails = shared.ConnectionDetails{
+				cd = shared.ConnectionDetails{
 					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
 					Path:     profile.Outputs[formResponse.DbtProfileOutput].Path,
 					Database: profile.Outputs[formResponse.DbtProfileOutput].Database,
@@ -50,7 +52,7 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 		switch formResponse.Warehouse {
 		case "snowflake":
 			{
-				connectionDetails = shared.ConnectionDetails{
+				cd = shared.ConnectionDetails{
 					ConnType: formResponse.Warehouse,
 					Username: formResponse.Username,
 					Account:  formResponse.Account,
@@ -60,17 +62,21 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 			}
 		case "bigquery":
 			{
-				connectionDetails = shared.ConnectionDetails{
+				cd = shared.ConnectionDetails{
 					ConnType: formResponse.Warehouse,
 					Project:  formResponse.Project,
 					Dataset:  formResponse.Dataset,
 				}
 			}
 		case "duckdb":
+			wd, err := os.Getwd()
+			if err != nil {
+				log.Fatalf("Could not get working directory: %v\n", err)
+			}
 			{
-				connectionDetails = shared.ConnectionDetails{
+				cd = shared.ConnectionDetails{
 					ConnType: formResponse.Warehouse,
-					Path:     formResponse.Path,
+					Path:     filepath.Join(wd, formResponse.Path),
 					Database: formResponse.Database,
 					Schema:   formResponse.Schema,
 				}
@@ -81,5 +87,5 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 			}
 		}
 	}
-	return connectionDetails
+	return cd
 }

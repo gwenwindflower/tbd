@@ -17,6 +17,27 @@ elf:
       user: legolas
       database: mirkwood
       schema: hall_of_thranduil
+      threads: 8
+
+human:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: gondor
+      dataset: minas_tirith
+      threads: 16
+
+dwarf:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: /usr/local/var/dwarf.db
+      database: khazad_dum
+      schema: balins_tomb
+      threads: 4
 `)
 	tmpDir := t.TempDir()
 	err := os.Mkdir(filepath.Join(tmpDir, ".dbt"), 0755)

@@ -17,6 +17,25 @@ func TestGetDbtProfile(t *testing.T) {
 	if profile.Target != "dev" {
 		t.Errorf("Expected target 'dev', got '%s'", profile.Target)
 	}
+	if profile.Outputs["dev"].ConnType != "snowflake" {
+		t.Errorf("Expected connection type 'snowflake', got '%s'", profile.Outputs["dev"].ConnType)
+	}
+	profile, err = GetDbtProfile("dwarf")
+	if err != nil {
+		t.Errorf("GetDbtProfile returned an error for an existing profile: %v", err)
+	}
+	if profile.Target != "dev" {
+		t.Errorf("Expected target 'dev', got '%s'", profile.Target)
+	}
+	if profile.Outputs["dev"].ConnType != "duckdb" {
+		t.Errorf("Expected connection type 'duckdb', got '%s'", profile.Outputs["dev"].ConnType)
+	}
+	if profile.Outputs["dev"].Schema != "balins_tomb" {
+		t.Errorf("Expected schema 'balins_tomb', got '%s'", profile.Outputs["dev"].Schema)
+	}
+	if profile.Outputs["dev"].Path != "/usr/local/var/dwarf.db" {
+		t.Errorf("Expected path '/usr/local/var/dwarf.db', got '%s'", profile.Outputs["dev"].Path)
+	}
 
 	// Profile does not exist
 	profile, err = GetDbtProfile("dunedain")
