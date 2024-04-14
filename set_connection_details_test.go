@@ -2,8 +2,9 @@ package main
 
 import (
 	"os"
-	"tbd/shared"
 	"testing"
+
+	"github.com/gwenwindflower/tbd/shared"
 )
 
 func TestSetConnectionDetailsWithoutDbtProfile(t *testing.T) {
@@ -39,6 +40,7 @@ func TestSetConnectionDetailsWithDbtProfile(t *testing.T) {
 		UseDbtProfile:        true,
 		DbtProfile:           "elf",
 		DbtProfileOutput:     "dev",
+		Schema:               "hall_of_thranduil",
 		GenerateDescriptions: false,
 		BuildDir:             "test_build",
 		Confirm:              true,

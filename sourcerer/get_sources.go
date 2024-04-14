@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"tbd/shared"
+
+	"github.com/gwenwindflower/tbd/shared"
 
 	"google.golang.org/api/iterator"
 )

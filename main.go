@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 	"sync"
-	"tbd/sourcerer"
 	"time"
 
 	"github.com/charmbracelet/huh/spinner"
+	"github.com/gwenwindflower/tbd/sourcerer"
 )
 
 type Elapsed struct {

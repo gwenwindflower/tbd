@@ -2,7 +2,8 @@ package main
 
 import (
 	"log"
-	"tbd/shared"
+
+	"github.com/gwenwindflower/tbd/shared"
 )
 
 func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
@@ -12,24 +13,54 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 		if err != nil {
 			log.Fatalf("Could not get dbt profile %v\n", err)
 		}
-		connectionDetails = shared.ConnectionDetails{
-			ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
-			Username: profile.Outputs[formResponse.DbtProfileOutput].User,
-			Account:  profile.Outputs[formResponse.DbtProfileOutput].Account,
-			Schema:   formResponse.Schema,
-			Database: profile.Outputs[formResponse.DbtProfileOutput].Database,
-			Project:  profile.Outputs[formResponse.DbtProfileOutput].Project,
-			Dataset:  formResponse.Schema,
+		switch profile.Outputs[formResponse.DbtProfileOutput].ConnType {
+		case "snowflake":
+			{
+				connectionDetails = shared.ConnectionDetails{
+					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
+					Username: profile.Outputs[formResponse.DbtProfileOutput].User,
+					Account:  profile.Outputs[formResponse.DbtProfileOutput].Account,
+					Database: profile.Outputs[formResponse.DbtProfileOutput].Database,
+					Schema:   formResponse.Schema,
+				}
+			}
+		case "bigquery":
+			{
+				connectionDetails = shared.ConnectionDetails{
+					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
+					Project:  profile.Outputs[formResponse.DbtProfileOutput].Project,
+					Dataset:  profile.Outputs[formResponse.DbtProfileOutput].Dataset,
+				}
+			}
+		default:
+			{
+				log.Fatalf("Unsupported connection type %v\n", profile.Outputs[formResponse.DbtProfileOutput].ConnType)
+			}
 		}
 	} else {
-		connectionDetails = shared.ConnectionDetails{
-			ConnType: formResponse.Warehouse,
-			Username: formResponse.Username,
-			Account:  formResponse.Account,
-			Schema:   formResponse.Schema,
-			Database: formResponse.Database,
-			Project:  formResponse.Project,
-			Dataset:  formResponse.Dataset,
+		switch formResponse.Warehouse {
+		case "snowflake":
+			{
+				connectionDetails = shared.ConnectionDetails{
+					ConnType: formResponse.Warehouse,
+					Username: formResponse.Username,
+					Account:  formResponse.Account,
+					Schema:   formResponse.Schema,
+					Database: formResponse.Database,
+				}
+			}
+		case "bigquery":
+			{
+				connectionDetails = shared.ConnectionDetails{
+					ConnType: formResponse.Warehouse,
+					Project:  formResponse.Project,
+					Dataset:  formResponse.Dataset,
+				}
+			}
+		default:
+			{
+				log.Fatalf("Unsupported connection type %v\n", formResponse.Warehouse)
+			}
 		}
 	}
 	return connectionDetails

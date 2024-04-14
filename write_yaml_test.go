@@ -2,8 +2,9 @@ package main
 
 import (
 	"os"
-	"tbd/shared"
 	"testing"
+
+	"github.com/gwenwindflower/tbd/shared"
 )
 
 func TestWriteYAML(t *testing.T) {

@@ -3,7 +3,8 @@ package main
 import (
 	"log"
 	"os"
-	"tbd/shared"
+
+	"github.com/gwenwindflower/tbd/shared"
 
 	"gopkg.in/yaml.v2"
 )

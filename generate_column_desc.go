@@ -10,8 +10,9 @@ import (
 	"os"
 	"regexp"
 	"sync"
-	"tbd/shared"
 	"time"
+
+	"github.com/gwenwindflower/tbd/shared"
 )
 
 type Payload struct {

@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"tbd/shared"
+
+	"github.com/gwenwindflower/tbd/shared"
 
 	"cloud.google.com/go/bigquery"
 	"google.golang.org/api/iterator"

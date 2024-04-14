@@ -7,8 +7,9 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"tbd/shared"
 	"text/template"
+
+	"github.com/gwenwindflower/tbd/shared"
 )
 
 //go:embed *.sql

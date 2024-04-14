@@ -6,7 +6,8 @@ import (
 	"log"
 	"regexp"
 	"sync"
-	"tbd/shared"
+
+	"github.com/gwenwindflower/tbd/shared"
 )
 
 func (sfc *SfConn) PutColumnsOnTables(ctx context.Context, tables shared.SourceTables) {

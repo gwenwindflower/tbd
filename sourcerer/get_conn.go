@@ -5,7 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
-	"tbd/shared"
+
+	"github.com/gwenwindflower/tbd/shared"
 
 	"cloud.google.com/go/bigquery"
 )
