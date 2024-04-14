@@ -8,7 +8,6 @@ builds:
   - env:
       - CGO_ENABLED=1
     goos:
-      - linux
       - darwin
 
 archives:
