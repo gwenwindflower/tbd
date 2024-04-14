@@ -27,6 +27,13 @@ type DbtProfile struct {
 	} `yaml:"outputs"`
 }
 
+type Elapsed struct {
+	DbStart           time.Time
+	DbElapsed         float64
+	ProcessingStart   time.Time
+	ProcessingElapsed float64
+}
+
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -37,48 +44,46 @@ func main() {
 	}
 	cd := SetConnectionDetails(formResponse)
 
-	var (
-		dbElapsed         float64
-		processingElapsed float64
-	)
+	e := Elapsed{}
 	s := spinner.New()
 	err := s.Action(func() {
-		connectionStart := time.Now()
-		buildDir := formResponse.BuildDir
+		e.DbStart = time.Now()
+
+		bd := formResponse.BuildDir
 
 		dbc, err := sourcerer.GetConn(cd)
 		if err != nil {
 			log.Fatalf("Error getting connection: %v\n", err)
 		}
-		tables, err := dbc.GetSources(ctx)
+		ts, err := dbc.GetSources(ctx)
 		if err != nil {
 			log.Fatalf("Error getting sources: %v\n", err)
 		}
 
-		dbElapsed = time.Since(connectionStart).Seconds()
+		e.DbElapsed = time.Since(e.DbStart).Seconds()
 		// End of database interaction, start of processing
-		processingStart := time.Now()
+		e.ProcessingStart = time.Now()
 
 		if formResponse.GenerateDescriptions {
-			GenerateColumnDescriptions(tables)
+			GenerateColumnDescriptions(ts)
 		}
-		PrepBuildDir(buildDir)
+		PrepBuildDir(bd)
 		var wg sync.WaitGroup
 		wg.Add(2)
 		go func() {
 			defer wg.Done()
-			WriteYAML(tables, buildDir)
+			WriteYAML(ts, bd)
 		}()
 		go func() {
 			defer wg.Done()
-			WriteStagingModels(tables, buildDir)
+			WriteStagingModels(ts, bd)
 		}()
 		wg.Wait()
-		processingElapsed = time.Since(processingStart).Seconds()
 	}).Title("🏎️✨ Generating YAML and SQL files...").Run()
 	if err != nil {
 		log.Fatalf("Error running spinner action: %v\n", err)
 	}
-	fmt.Printf("🏁 Done in %.1fs getting data from the db and %.1fs processing! ", dbElapsed, processingElapsed)
+	e.ProcessingElapsed = time.Since(e.ProcessingStart).Seconds()
+	fmt.Printf("🏁 Done in %.1fs fetching data and %.1fs writing files! ", e.DbElapsed, e.ProcessingElapsed)
 	fmt.Println("Your YAML and SQL files are in the build directory.")
 }

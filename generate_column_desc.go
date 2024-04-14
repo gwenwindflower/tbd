@@ -86,6 +86,9 @@ They will be nested under a 'tests' key in a YAML file, so no need to add a titl
   A good response for an 'order_id' column in an 'orders' table would be:
   - unique
   - not_null
+
+  A good response for a 'product_sku' column in an 'orders' table would be:
+  - not_null
 `
 )
 
@@ -142,9 +145,9 @@ func GetGroqResponse(prompt string) (GroqResponse, error) {
 				Content: prompt,
 			},
 		},
-		Model:  "gemma-7b-it",
+		Model:  "mixtral-8x7b-32768",
 		Temp:   0.5,
-		Tokens: 1024,
+		Tokens: 2048,
 		TopP:   1,
 		Stream: false,
 		Stop:   nil,

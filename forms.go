@@ -30,23 +30,37 @@ func Forms() (formResponse FormResponse) {
 			huh.NewNote().
 				Title("🏁 Welcome to tbd! 🏎️✨").
 				Description(`A sweet and speedy code generator for dbt.
-tbd will generate source YAML config and SQL staging models for all the tables in the schema you specify.
-To prepare, make sure you have the following:
+Currently supports _Snowflake_ and _BigQuery_.
 
+Generates:
+- YAML sources config
+- SQL staging models
+For each table in the designated schema/dataset.
+
+To prepare, make sure you have the following:
 ✴︎ An existing dbt profile.yml file to reference
-**OR**
+*_OR_*
 ✴︎ The necessary connection details for your warehouse
 
-_Authentication will be handled via SSO._
-_For security, we don't support password auth._`),
+_Authentication must be handled via SSO._
+_For security, we don't support password auth._
+Platform-specific requirements:
+*_Snowflake_*: externalbrowser auth
+*_BigQuery_*: gcloud CLI installed and authed`),
 		),
 		huh.NewGroup(
 			huh.NewNote().
-				Title("⚠️ Experimental Feature: LLM Generation 🦙✨").
-				Description(`I'm currently exploring *_optional_* LLM-powered alpha features.
-At present this is limited to generating column descriptions and inferring tests via Groq.
+				Title("🤖 Experimental: LLM Generation 🦙✨").
+				Description(`*_Optional_* LLM-powered alpha features.
+
+Currently generates: 
+- column _descriptions_
+- relevant _tests_
+via the Groq API.
+
 You'll need:
-✴︎ A Groq API key stored in an env var`),
+✴︎ A Groq API key
+✴︎ Key stored in env var`),
 			huh.NewConfirm().Affirmative("Sure!").Negative("Nope").
 				Title("Do you want to generate column descriptions and tests via LLM?").
 				Value(&formResponse.GenerateDescriptions),
@@ -110,7 +124,7 @@ You'll need:
 	llm_form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
-				Title("What is the name of the env var you've stored your Groq API key in?").
+				Title("What env var holds your Groq key?").
 				Placeholder("GROQ_API_KEY").
 				Value(&formResponse.GroqKeyEnvVar),
 		),
@@ -119,8 +133,9 @@ You'll need:
 		huh.NewGroup(
 			huh.NewNote().
 				Title("🚧🚨 Choose your build directory carefully! 🚨🚧").
-				Description(`I highly recommend choosing a new or empty directory to build into.
-If you use an existing directory, tbd will overwrite any existing files with the same name.`),
+				Description(`_I highly recommend choosing a new or empty directory to build into._
+If you use an existing directory,
+tbd will overwrite any existing files of the same name.`),
 		),
 		huh.NewGroup(
 			huh.NewInput().
