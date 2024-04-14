@@ -18,6 +18,8 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 			Account:  profile.Outputs[formResponse.DbtProfileOutput].Account,
 			Schema:   profile.Outputs[formResponse.DbtProfileOutput].Schema,
 			Database: profile.Outputs[formResponse.DbtProfileOutput].Database,
+			Project:  profile.Outputs[formResponse.DbtProfileOutput].Project,
+			Dataset:  profile.Outputs[formResponse.DbtProfileOutput].Dataset,
 		}
 	} else {
 		connectionDetails = shared.ConnectionDetails{
@@ -26,6 +28,8 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 			Account:  formResponse.Account,
 			Schema:   formResponse.Schema,
 			Database: formResponse.Database,
+			Project:  formResponse.Project,
+			Dataset:  formResponse.Dataset,
 		}
 	}
 	return connectionDetails

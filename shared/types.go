@@ -21,6 +21,8 @@ type ConnectionDetails struct {
 	ConnType string
 	Username string
 	Account  string
-	Schema   string
 	Database string
+	Schema   string
+	Project  string
+	Dataset  string
 }
