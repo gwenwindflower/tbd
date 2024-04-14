@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/charmbracelet/huh"
@@ -30,8 +31,9 @@ func Forms() (formResponse FormResponse) {
 		huh.NewGroup(
 			huh.NewNote().
 				Title("🏁 Welcome to tbd! 🏎️✨").
-				Description(`A sweet and speedy code generator for dbt.
-Currently supports _Snowflake_ and _BigQuery_.
+				Description(fmt.Sprintf(`A sweet and speedy code generator for dbt projects.
+   ¸.•✴︎•.¸.•✴︎•.¸.•✴︎•. _%s_ .•✴︎•.¸.•✴︎•.¸.•✴︎•.¸
+Currently supports *Snowflake*, *BigQuery*, and *DuckDB*.
 
 Generates:
 ✴︎ YAML sources config
@@ -45,9 +47,12 @@ To prepare, make sure you have the following:
 
 _Authentication must be handled via SSO._
 _For security, we don't support password auth._
+
 Platform-specific requirements:
-*_Snowflake_*: externalbrowser auth
-*_BigQuery_*: gcloud CLI installed and authed`),
+✴︎ _Snowflake_: externalbrowser auth
+✴︎ _BigQuery_: gcloud CLI installed and authed
+✴︎ _DuckDB_: none if using a local db
+`, Version)),
 		),
 		huh.NewGroup(
 			huh.NewNote().
