@@ -1,4 +1,4 @@
-module tbd
+module github.com/gwenwindflower/tbd
 
 go 1.22.0
 
