@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gwenwindflower/tbd/shared"
@@ -34,6 +36,14 @@ type BqConn struct {
 	Cancel  context.CancelFunc
 }
 
+type DuckConn struct {
+	Path     string
+	Database string
+	Schema   string
+	Db       *sql.DB
+	Cancel   context.CancelFunc
+}
+
 func GetConn(cd shared.ConnectionDetails) (DbConn, error) {
 	switch cd.ConnType {
 	case "snowflake":
@@ -49,6 +59,19 @@ func GetConn(cd shared.ConnectionDetails) (DbConn, error) {
 			Project: cd.Project,
 			Dataset: cd.Dataset,
 		}, nil
+	case "duckdb":
+		{
+			wd, err := os.Getwd()
+			if err != nil {
+				return nil, err
+			}
+			p := filepath.Join(wd, cd.Path)
+			return &DuckConn{
+				Path:     p,
+				Database: cd.Database,
+				Schema:   cd.Schema,
+			}, nil
+		}
 	default:
 		return nil, errors.New("unsupported connection type")
 	}
