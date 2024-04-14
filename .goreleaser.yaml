@@ -33,7 +33,7 @@ changelog:
 brews:
   - repository:
       owner: gwenwindflower
-      name: tbd-homebrew-tap
+      name: homebrew-tbd
     homepage: "https://github.com/gwenwindflower/tbd"
     description: "A sweet and speedy code generator for dbt."
     license: "GPL-3.0"
