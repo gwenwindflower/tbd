@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/charmbracelet/huh/spinner"
-	_ "github.com/snowflakedb/gosnowflake"
 )
 
 type DbtProfile struct {
@@ -22,6 +21,8 @@ type DbtProfile struct {
 		Authenticator string `yaml:"authenticator"`
 		Database      string `yaml:"database"`
 		Schema        string `yaml:"schema"`
+		Project       string `yaml:"project"`
+		Dataset       string `yaml:"dataset"`
 		Threads       int    `yaml:"threads"`
 	} `yaml:"outputs"`
 }
@@ -34,7 +35,7 @@ func main() {
 	if !formResponse.Confirm {
 		log.Fatal("⛔ User cancelled.")
 	}
-	connectionDetails := SetConnectionDetails(formResponse)
+	cd := SetConnectionDetails(formResponse)
 
 	var (
 		dbElapsed         float64
@@ -45,7 +46,11 @@ func main() {
 		connectionStart := time.Now()
 		buildDir := formResponse.BuildDir
 
-		tables, err := sourcerer.GetSources(ctx, connectionDetails)
+		dbc, err := sourcerer.GetConn(cd)
+		if err != nil {
+			log.Fatalf("Error getting connection: %v\n", err)
+		}
+		tables, err := dbc.GetSources(ctx)
 		if err != nil {
 			log.Fatalf("Error getting sources: %v\n", err)
 		}

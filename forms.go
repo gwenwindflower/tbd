@@ -13,6 +13,8 @@ type FormResponse struct {
 	Account              string
 	Database             string
 	Schema               string
+	Project              string
+	Dataset              string
 	BuildDir             string
 	GenerateDescriptions bool
 	GroqKeyEnvVar        string
@@ -30,14 +32,13 @@ func Forms() (formResponse FormResponse) {
 				Description(`A sweet and speedy code generator for dbt.
 tbd will generate source YAML config and SQL staging models for all the tables in the schema you specify.
 To prepare, make sure you have the following:
-* An existing dbt profile.yml file to reference
-OR
-✴︎ *_Username_* (e.g. aragorn@dunedain.king)
-✴︎ *_Account ID_* (e.g. elfstone-consulting.us-west-1)
-✴︎ *_Schema_* you want to generate (e.g. minas-tirith)
-✴︎ *_Database_* that schema is in (e.g. gondor)
-Authentication will be handled via SSO in the web browser.
-For security, we don't currently support password-based authentication.`),
+
+✴︎ An existing dbt profile.yml file to reference
+**OR**
+✴︎ The necessary connection details for your warehouse
+
+_Authentication will be handled via SSO._
+_For security, we don't support password auth._`),
 		),
 		huh.NewGroup(
 			huh.NewNote().
@@ -45,7 +46,7 @@ For security, we don't currently support password-based authentication.`),
 				Description(`I'm currently exploring *_optional_* LLM-powered alpha features.
 At present this is limited to generating column descriptions and inferring tests via Groq.
 You'll need:
-✴︎ A Groq API key stored in an environment variable.`),
+✴︎ A Groq API key stored in an env var`),
 			huh.NewConfirm().Affirmative("Sure!").Negative("Nope").
 				Title("Do you want to generate column descriptions and tests via LLM?").
 				Value(&formResponse.GenerateDescriptions),
@@ -68,15 +69,19 @@ You'll need:
 				Placeholder("dev"),
 		),
 	)
-	manual_form := huh.NewForm(
+	warehouse_form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewSelect[string]().
 				Title("Choose your warehouse.").
 				Options(
 					huh.NewOption("Snowflake", "snowflake"),
+					huh.NewOption("BigQuery", "bigquery"),
 				).
 				Value(&formResponse.Warehouse),
-
+		),
+	)
+	snowflake_form := huh.NewForm(
+		huh.NewGroup(
 			huh.NewInput().
 				Title("What is your username?").
 				Value(&formResponse.Username).Placeholder("aragorn@dunedain.king"),
@@ -92,6 +97,14 @@ You'll need:
 			huh.NewInput().
 				Title("What database is that schema in?").
 				Value(&formResponse.Database).Placeholder("gondor"),
+		),
+	)
+	bigquery_form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewInput().Title("What is your GCP project's id?").
+				Value(&formResponse.Project).Placeholder("legolas_inc"),
+			huh.NewInput().Title("What is the dataset you want to generate?").
+				Value(&formResponse.Dataset).Placeholder("mirkwood"),
 		),
 	)
 	llm_form := huh.NewForm(
@@ -125,7 +138,9 @@ If you use an existing directory, tbd will overwrite any existing files with the
 	)
 	intro_form.WithTheme(huh.ThemeCatppuccin())
 	dbt_form.WithTheme(huh.ThemeCatppuccin())
-	manual_form.WithTheme(huh.ThemeCatppuccin())
+	warehouse_form.WithTheme(huh.ThemeCatppuccin())
+	snowflake_form.WithTheme(huh.ThemeCatppuccin())
+	bigquery_form.WithTheme(huh.ThemeCatppuccin())
 	llm_form.WithTheme(huh.ThemeCatppuccin())
 	dir_form.WithTheme(huh.ThemeCatppuccin())
 	confirm_form.WithTheme(huh.ThemeCatppuccin())
@@ -136,10 +151,22 @@ If you use an existing directory, tbd will overwrite any existing files with the
 	if formResponse.UseDbtProfile {
 		err = dbt_form.Run()
 	} else {
-		err = manual_form.Run()
+		err = warehouse_form.Run()
+		switch formResponse.Warehouse {
+		case "snowflake":
+			err = snowflake_form.Run()
+			if err != nil {
+				log.Fatalf("Error running snowflake form %v\n", err)
+			}
+		case "bigquery":
+			err = bigquery_form.Run()
+			if err != nil {
+				log.Fatalf("Error running bigquery form %v\n", err)
+			}
+		}
 	}
 	if err != nil {
-		log.Fatalf("Error running connectiond details form %v\n", err)
+		log.Fatalf("Error running connection details form %v\n", err)
 	}
 	if formResponse.GenerateDescriptions {
 		err = llm_form.Run()
