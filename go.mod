@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/bigquery v1.60.0
 	github.com/charmbracelet/huh v0.3.1-0.20240306161957-71f31c155b08
 	github.com/charmbracelet/huh/spinner v0.0.0-20240306161957-71f31c155b08
+	github.com/marcboeker/go-duckdb v1.6.3
 	github.com/snowflakedb/gosnowflake v1.9.0
 	google.golang.org/api v0.170.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -67,7 +68,6 @@ require (
 	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
-	github.com/marcboeker/go-duckdb v1.6.3 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect

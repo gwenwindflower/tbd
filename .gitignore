@@ -26,3 +26,5 @@ go.work
 
 test_build
 tbd
+
+dist/
