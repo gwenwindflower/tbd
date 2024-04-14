@@ -57,3 +57,27 @@ func (bqc *BqConn) GetSources(ctx context.Context) (shared.SourceTables, error) 
 	bqc.PutColumnsOnTables(ctx, ts)
 	return ts, nil
 }
+
+func (dc *DuckConn) GetSources(ctx context.Context) (shared.SourceTables, error) {
+	ts := shared.SourceTables{}
+	err := dc.ConnectToDB(ctx)
+	defer dc.Cancel()
+	if err != nil {
+		log.Fatalf("Couldn't connect to database: %v\n", err)
+	}
+	q := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", dc.Schema)
+	rows, err := dc.Db.QueryContext(ctx, q)
+	if err != nil {
+		log.Fatalf("Error fetching tables: %v\n", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var table shared.SourceTable
+		if err := rows.Scan(&table.Name); err != nil {
+			log.Fatalf("Error scanning tables: %v\n", err)
+		}
+		ts.SourceTables = append(ts.SourceTables, table)
+	}
+	dc.PutColumnsOnTables(ctx, ts)
+	return ts, nil
+}

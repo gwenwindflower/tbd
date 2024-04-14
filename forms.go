@@ -15,6 +15,7 @@ type FormResponse struct {
 	Schema               string
 	Project              string
 	Dataset              string
+	Path                 string
 	BuildDir             string
 	GenerateDescriptions bool
 	GroqKeyEnvVar        string
@@ -93,6 +94,7 @@ You'll need:
 				Options(
 					huh.NewOption("Snowflake", "snowflake"),
 					huh.NewOption("BigQuery", "bigquery"),
+					huh.NewOption("DuckDB", "duckdb"),
 				).
 				Value(&formResponse.Warehouse),
 		),
@@ -122,6 +124,16 @@ You'll need:
 				Value(&formResponse.Project).Placeholder("legolas_inc"),
 			huh.NewInput().Title("What is the dataset you want to generate?").
 				Value(&formResponse.Dataset).Placeholder("mirkwood"),
+		),
+	)
+	duckdb_form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewInput().Title("What is the path to your DuckDB database?").
+				Value(&formResponse.Path).Placeholder("/path/to/duckdb.db"),
+			huh.NewInput().Title("What is the DuckDB database you want to generate?").
+				Value(&formResponse.Database).Placeholder("duckdb"),
+			huh.NewInput().Title("What is the schema you want to generate?").
+				Value(&formResponse.Schema).Placeholder("raw"),
 		),
 	)
 	llm_form := huh.NewForm(
@@ -159,6 +171,7 @@ tbd will overwrite any existing files of the same name.`),
 	warehouse_form.WithTheme(huh.ThemeCatppuccin())
 	snowflake_form.WithTheme(huh.ThemeCatppuccin())
 	bigquery_form.WithTheme(huh.ThemeCatppuccin())
+	duckdb_form.WithTheme(huh.ThemeCatppuccin())
 	llm_form.WithTheme(huh.ThemeCatppuccin())
 	dir_form.WithTheme(huh.ThemeCatppuccin())
 	confirm_form.WithTheme(huh.ThemeCatppuccin())
@@ -168,8 +181,14 @@ tbd will overwrite any existing files of the same name.`),
 	}
 	if formResponse.UseDbtProfile {
 		err = dbt_form.Run()
+		if err != nil {
+			log.Fatalf("Error running dbt form %v\n", err)
+		}
 	} else {
 		err = warehouse_form.Run()
+		if err != nil {
+			log.Fatalf("Error running warehouse form %v\n", err)
+		}
 		switch formResponse.Warehouse {
 		case "snowflake":
 			err = snowflake_form.Run()
@@ -177,14 +196,20 @@ tbd will overwrite any existing files of the same name.`),
 				log.Fatalf("Error running snowflake form %v\n", err)
 			}
 		case "bigquery":
-			err = bigquery_form.Run()
-			if err != nil {
-				log.Fatalf("Error running bigquery form %v\n", err)
+			{
+				err = bigquery_form.Run()
+				if err != nil {
+					log.Fatalf("Error running bigquery form %v\n", err)
+				}
+			}
+		case "duckdb":
+			{
+				err = duckdb_form.Run()
+				if err != nil {
+					log.Fatalf("Error running duckdb form %v\n", err)
+				}
 			}
 		}
-	}
-	if err != nil {
-		log.Fatalf("Error running connection details form %v\n", err)
 	}
 	if formResponse.GenerateDescriptions {
 		err = llm_form.Run()

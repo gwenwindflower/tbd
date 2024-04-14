@@ -32,6 +32,14 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 					Dataset:  profile.Outputs[formResponse.DbtProfileOutput].Dataset,
 				}
 			}
+		case "duckdb":
+			{
+				connectionDetails = shared.ConnectionDetails{
+					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
+					Database: profile.Outputs[formResponse.DbtProfileOutput].Database,
+					Schema:   formResponse.Schema,
+				}
+			}
 		default:
 			{
 				log.Fatalf("Unsupported connection type %v\n", profile.Outputs[formResponse.DbtProfileOutput].ConnType)
@@ -55,6 +63,14 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 					ConnType: formResponse.Warehouse,
 					Project:  formResponse.Project,
 					Dataset:  formResponse.Dataset,
+				}
+			}
+		case "duckdb":
+			{
+				connectionDetails = shared.ConnectionDetails{
+					ConnType: formResponse.Warehouse,
+					Database: formResponse.Database,
+					Schema:   formResponse.Schema,
 				}
 			}
 		default:

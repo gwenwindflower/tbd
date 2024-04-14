@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/bigquery"
+	_ "github.com/marcboeker/go-duckdb"
 	_ "github.com/snowflakedb/gosnowflake"
 )
 
@@ -35,6 +36,16 @@ func (bqc *BqConn) ConnectToDB(ctx context.Context) (err error) {
 	bqc.Bq, err = bigquery.NewClient(ctx, bqc.Project)
 	if err != nil {
 		log.Fatalf("Could not connect to BigQuery %v\n", err)
+	}
+	return err
+}
+
+func (dc *DuckConn) ConnectToDB(ctx context.Context) (err error) {
+	_, dc.Cancel = context.WithTimeout(ctx, 1*time.Minute)
+	defer dc.Cancel()
+	dc.Db, err = sql.Open("duckdb", dc.Path)
+	if err != nil {
+		log.Fatalf("Could not connect to DuckDB %v\n", err)
 	}
 	return err
 }

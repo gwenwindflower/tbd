@@ -7,6 +7,15 @@
 
 _Disclaimer: This project is not affiliated with dbt Labs in any way. It is a personal project and is not officially supported by dbt Labs. I work at dbt Labs, but I develop this project in my own time._
 
+## Supported warehouses
+
+- [x] BigQuery
+- [x] Snowflake
+- [ ] Redshift
+- [ ] Databricks
+- [ ] Postgres
+- [ ] DuckDB
+
 ## Installation
 
 For the time being this project ideally requires `go`. When I've gotten test coverage up to a reasonable level and covered another dbt adapter or two, I'll set up a Homebrew tap. In the meantime, you can install it with the following command:
