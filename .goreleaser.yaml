@@ -31,6 +31,9 @@ changelog:
       - "^test:"
 
 brews:
-  repository:
-    owner: gwenwindflower
-    name: tbd-homebrew-tap
+  - repository:
+      owner: gwenwindflower
+      name: tbd-homebrew-tap
+    homepage: "https://github.com/gwenwindflower/tbd"
+    description: "A sweet and speedy code generator for dbt."
+    license: "GPL-3.0"
