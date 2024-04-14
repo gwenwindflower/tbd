@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gwenwindflower/tbd/shared"
@@ -59,8 +61,13 @@ func GetConn(cd shared.ConnectionDetails) (DbConn, error) {
 		}, nil
 	case "duckdb":
 		{
+			wd, err := os.Getwd()
+			if err != nil {
+				return nil, err
+			}
+			p := filepath.Join(wd, cd.Path)
 			return &DuckConn{
-				Path:     cd.Path,
+				Path:     p,
 				Database: cd.Database,
 				Schema:   cd.Schema,
 			}, nil

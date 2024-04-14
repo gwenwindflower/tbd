@@ -128,7 +128,8 @@ You'll need:
 	)
 	duckdb_form := huh.NewForm(
 		huh.NewGroup(
-			huh.NewInput().Title("What is the path to your DuckDB database?").
+			huh.NewInput().Title(`What is the path to your DuckDB database?
+Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 				Value(&formResponse.Path).Placeholder("/path/to/duckdb.db"),
 			huh.NewInput().Title("What is the DuckDB database you want to generate?").
 				Value(&formResponse.Database).Placeholder("duckdb"),

@@ -21,6 +21,7 @@ type DbtProfile struct {
 		Schema        string `yaml:"schema"`
 		Project       string `yaml:"project"`
 		Dataset       string `yaml:"dataset"`
+		Path          string `yaml:"path"`
 		Threads       int    `yaml:"threads"`
 	} `yaml:"outputs"`
 }

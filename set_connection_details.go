@@ -36,6 +36,7 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 			{
 				connectionDetails = shared.ConnectionDetails{
 					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
+					Path:     profile.Outputs[formResponse.DbtProfileOutput].Path,
 					Database: profile.Outputs[formResponse.DbtProfileOutput].Database,
 					Schema:   formResponse.Schema,
 				}
@@ -69,6 +70,7 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 			{
 				connectionDetails = shared.ConnectionDetails{
 					ConnType: formResponse.Warehouse,
+					Path:     formResponse.Path,
 					Database: formResponse.Database,
 					Schema:   formResponse.Schema,
 				}
