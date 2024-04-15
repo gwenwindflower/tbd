@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/gwenwindflower/tbd/shared"
 )
 
 func CreateTempDbtProfile(t *testing.T) string {
@@ -51,4 +53,22 @@ dwarf:
 	}
 	os.Setenv("HOME", tmpDir)
 	return tmpDir
+}
+
+func CreateTempSourceTables() shared.SourceTables {
+	return shared.SourceTables{
+		SourceTables: []shared.SourceTable{
+			{
+				Name: "arwen",
+				Columns: []shared.Column{
+					{
+						Name:        "elrond",
+						DataType:    "string",
+						Description: "my dad",
+						Tests:       []string{"unique", "not_null"},
+					},
+				},
+			},
+		},
+	}
 }
