@@ -95,9 +95,14 @@ func TestSetConnectionDetailsWithDuckDBWithoutDbtProfile(t *testing.T) {
 		Confirm:              true,
 	}
 	connectionDetails := SetConnectionDetails(formResponse)
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Errorf("Failed to get working directory: %v", err)
+	}
+	p := wd + "/dwarf.db"
 	want := shared.ConnectionDetails{
 		ConnType: "duckdb",
-		Path:     "/Users/winnie/dev/tbd/dwarf.db",
+		Path:     p,
 		Database: "khazad_dum",
 		Schema:   "balins_tomb",
 	}
