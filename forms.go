@@ -154,7 +154,7 @@ Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 		huh.NewGroup(
 			huh.NewNote().
 				Title("🚧🚨 Choose your build directory carefully! 🚨🚧").
-				Description(`_I highly recommend choosing a new or empty directory to build into._
+				Description(`Choose a _new_ or _empty_ directory.
 If you use an existing directory,
 tbd will overwrite any existing files of the same name.`),
 		),

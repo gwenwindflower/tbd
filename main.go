@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"sync"
 	"time"
 
 	"github.com/charmbracelet/huh/spinner"
@@ -52,17 +51,10 @@ func main() {
 			GenerateColumnDescriptions(ts)
 		}
 		PrepBuildDir(bd)
-		var wg sync.WaitGroup
-		wg.Add(2)
-		go func() {
-			defer wg.Done()
-			WriteYAML(ts, bd)
-		}()
-		go func() {
-			defer wg.Done()
-			WriteStagingModels(ts, bd)
-		}()
-		wg.Wait()
+		err = WriteFiles(ts, bd)
+		if err != nil {
+			log.Fatalf("Error writing files: %v\n", err)
+		}
 	}).Title("🏎️✨ Generating YAML and SQL files...").Run()
 	if err != nil {
 		log.Fatalf("Error running spinner action: %v\n", err)
