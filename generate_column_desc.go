@@ -136,6 +136,7 @@ func GenerateColumnDescriptions(tables shared.SourceTables) {
 			}(i, j)
 		}
 	}
+	wg.Wait()
 }
 
 func GetGroqResponse(prompt string) (GroqResponse, error) {
