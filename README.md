@@ -19,12 +19,16 @@ _**Disclaimer**: This project is not affiliated with dbt Labs in any way. It is 
 ## Installation
 
 For the time being this project is **only compatible with MacOS**. Linux and Windows support are definitely on the roadmap, just have to wait for a day when I can dive deep into CGO and understand the intricacies of building for those platforms. The easiest way to install is via Homebrew:
+
 ```bash
 brew tap gwenwindflower/homebrew-tbd
 brew install tbd
 ```
+
 If you have Go installed, you can also install it via `go install`:
+
 ```bash
+go get -u github.com/gwenwindflower/tbd@latest
 go install github.com/gwenwindflower/tbd@latest
 ```
 
