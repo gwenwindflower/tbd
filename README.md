@@ -5,7 +5,7 @@
 > [!IMPORTANT]
 > This project is still in its _very_ early stages. It should be relatively safe to use, but don't be surprised by bugs, breaking changes, or missing features. Please feel free to open issues or PRs if you have any feedback! Most importantly, be sure you're always pointing the output at an empty directory, or it may overwrite files with the same names.
 
-_Disclaimer: This project is not affiliated with dbt Labs in any way. It is a personal project and is not officially supported by dbt Labs. I work at dbt Labs, but I develop this project in my own time._
+_**Disclaimer**: This project is not affiliated with dbt Labs in any way. It is a personal project and is not officially supported by dbt Labs. I work at dbt Labs, but I develop this project in my own time._
 
 ## Supported warehouses
 
@@ -18,15 +18,19 @@ _Disclaimer: This project is not affiliated with dbt Labs in any way. It is a pe
 
 ## Installation
 
-For the time being this project ideally requires `go`. When I've gotten test coverage up to a reasonable level and covered another warehouse or two, I'll set up a Homebrew tap. In the meantime, you can install it with the following command:
-
+For the time being this project is **only compatible with MacOS**. Linux and Windows support are definitely on the roadmap, just have to wait for a day when I can dive deep into CGO and understand the intricacies of building for those platforms. The easiest way to install is via Homebrew:
+```bash
+brew tap gwenwindflower/homebrew-tbd
+brew install tbd
+```
+If you have Go installed, you can also install it via `go install`:
 ```bash
 go install github.com/gwenwindflower/tbd@latest
 ```
 
-That's it! It's a single binary, so you can run it from anywhere. It has no dependencies on `dbt` itself, for maximum speed it operates directly with your warehouse, so you don't even need to have `dbt` installed to use it. That said, it _can_ leverage the profiles in your `~/.dbt/profiles.yml` file if you have them set up, so you can use the same connection information to save yourself some typing.
+That's it! It's a single binary and has no dependencies on `dbt` itself, for maximum speed it operates directly with your warehouse, so you don't even need to have `dbt` installed to use it. That said, it _can_ leverage the profiles in your `~/.dbt/profiles.yml` file if you have them set up, so you can use the same connection information to save yourself some typing.
 
-You can also download the binary from the [releases page](https://github.com/gwenwindflower/tbd/releases) and add it to your PATH if you're comfortable with that.
+You can also download a binary from the [releases page](https://github.com/gwenwindflower/tbd/releases) and add it to your PATH if you're comfortable with that.
 
 If you're looking for a way to rapidly scaffold your dbt project before you use this tool to build your sources and staging models, check out [copier-dbt](https://github.com/gwenwindflower/copier-dbt).
 
@@ -67,3 +71,5 @@ I will _definitely_ be adding other LLM providers in the future, probably Anthro
 - [ ] Add support for Databricks
 - [ ] Add support for Postgres
 - [x] Add support for DuckDB
+- [ ] Build on Linux
+- [ ] Build on Windows
