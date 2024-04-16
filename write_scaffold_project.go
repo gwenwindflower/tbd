@@ -10,12 +10,20 @@ import (
 )
 
 func WriteScaffoldProject(cd shared.ConnectionDetails, bd string, pn string) (string, error) {
-	folders := []string{"models", "analyses", "data", "macros", "seeds", "snapshots", "data-tests", "models/staging", "models/marts"}
+	folders := []string{"models", "analyses", "macros", "seeds", "snapshots", "data-tests", "models/staging", "models/marts"}
+	emptyFolders := []string{"analyses", "macros", "seeds", "snapshots", "data-tests", "models/marts"}
 	for _, folder := range folders {
 		p := path.Join(bd, folder)
 		err := os.MkdirAll(p, 0755)
 		if err != nil {
 			return "", err
+		}
+	}
+	for _, folder := range emptyFolders {
+		p := path.Join(bd, folder, ".gitkeep")
+		err := os.MkdirAll(p, 0755)
+		if err != nil {
+			log.Fatalf("Failed to create .gitkeep in %s folder %v\n", folder, err)
 		}
 	}
 	projectYamlTemplate := `config-version: 2
@@ -42,6 +50,24 @@ models:
     marts:
       +materialized: table
 `
+	gitignore := []byte(`.venv
+venv
+.env
+env
+
+target/
+dbt_packages/
+logs/
+profiles.yml
+
+.DS_Store
+
+.user.yml
+
+.ruff_cache
+__pycache__
+`)
+
 	tmpl, err := template.New("dbt_project.yml").Parse(projectYamlTemplate)
 	if err != nil {
 		log.Fatalf("Failed to parse dbt_project.yml template %v\n", err)
@@ -56,6 +82,11 @@ models:
 	err = tmpl.Execute(o, cd)
 	if err != nil {
 		log.Fatalf("Failed to execute dbt_project.yml template %v\n", err)
+	}
+	gi := path.Join(bd, ".gitignore")
+	err = os.WriteFile(gi, gitignore, 0644)
+	if err != nil {
+		log.Fatalf("Failed to write .gitignore file %v\n", err)
 	}
 	s := path.Join(bd, "models/staging", cd.Schema)
 	err = os.MkdirAll(s, 0755)

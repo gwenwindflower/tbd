@@ -44,7 +44,7 @@ Generates:
 For each table in the designated schema/dataset.
 
 To prepare, make sure you have the following:
-✴︎ An existing dbt profile.yml file to reference
+✴︎ An existing dbt profiles.yml file to reference
 *_OR_*
 ✴︎ The necessary connection details for your warehouse
 
@@ -173,8 +173,8 @@ Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 			huh.NewNote().
 				Title("🚧🚨 Choose your build directory carefully! 🚨🚧").
 				Description(`Choose a _new_ or _empty_ directory.
-If you use an existing directory,
-tbd will overwrite any existing files of the same name.`),
+If you choose an existing, populated directory 
+tbd will _intentionally error out_.`),
 		),
 		huh.NewGroup(
 			huh.NewInput().

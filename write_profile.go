@@ -45,7 +45,7 @@ func WriteProfile(cd shared.ConnectionDetails, bd string) {
       {{- end}}
       threads: 8
 `
-	tmpl, err := template.New("profiles.yml").Parse(pt)
+	tmpl, err := template.New("profiles").Parse(pt)
 	if err != nil {
 		log.Fatalf("Failed to parse template %v\n", err)
 	}

@@ -50,10 +50,13 @@ func main() {
 		if formResponse.GenerateDescriptions {
 			GenerateColumnDescriptions(ts)
 		}
+		err = PrepBuildDir(bd)
+		if err != nil {
+			log.Fatalf("Error preparing build directory: %v\n", err)
+		}
 		if formResponse.CreateProfile {
 			WriteProfile(cd, bd)
 		}
-		PrepBuildDir(bd)
 		if formResponse.ScaffoldProject {
 			s, err := WriteScaffoldProject(cd, bd, formResponse.ProjectName)
 			if err != nil {
