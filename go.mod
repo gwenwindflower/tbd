@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/bigquery v1.60.0
 	github.com/charmbracelet/huh v0.3.1-0.20240306161957-71f31c155b08
 	github.com/charmbracelet/huh/spinner v0.0.0-20240306161957-71f31c155b08
+	github.com/jarcoal/httpmock v1.3.1
 	github.com/marcboeker/go-duckdb v1.6.3
 	github.com/snowflakedb/gosnowflake v1.9.0
 	google.golang.org/api v0.170.0
@@ -64,7 +65,6 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.3 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
-	github.com/jarcoal/httpmock v1.3.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
