@@ -21,7 +21,7 @@ func WriteScaffoldProject(cd shared.ConnectionDetails, bd string, pn string) (st
 	}
 	for _, folder := range emptyFolders {
 		p := path.Join(bd, folder, ".gitkeep")
-		err := os.MkdirAll(p, 0755)
+		_, err := os.Create(p)
 		if err != nil {
 			log.Fatalf("Failed to create .gitkeep in %s folder %v\n", folder, err)
 		}
