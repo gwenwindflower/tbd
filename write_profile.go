@@ -17,7 +17,7 @@ func WriteProfile(cd shared.ConnectionDetails, bd string) {
     dev:
       type: {{.ConnType}}
       {{- if eq .ConnType "snowflake"}}
-      auth: externalbrowser
+      authenticator: externalbrowser
       {{- end}}
       {{- if eq .ConnType "bigquery"}}
       method: oauth

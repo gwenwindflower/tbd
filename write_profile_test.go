@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"path"
 	"testing"
 
 	"github.com/gwenwindflower/tbd/shared"
@@ -24,13 +25,15 @@ snowflake:
   outputs:
     dev:
       type: snowflake
+      authenticator: externalbrowser
       account: dunedain.snowflakecomputing.com
       user: aragorn
       database: gondor
       schema: minas_tirith
       threads: 8
 `)
-	got, err := os.ReadFile("profiles.yml")
+	tpp := path.Join(tmpDir, "profiles.yml")
+	got, err := os.ReadFile(tpp)
 	if err != nil {
 		t.Fatalf("Failed to read profiles.yml: %v", err)
 	}
