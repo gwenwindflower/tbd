@@ -26,6 +26,7 @@ type FormResponse struct {
 	CreateProfile        bool
 	ScaffoldProject      bool
 	ProjectName          string
+	Prefix               string
 }
 
 func Forms() (formResponse FormResponse) {
@@ -81,6 +82,10 @@ You'll need:
 			huh.NewConfirm().Affirmative("Yeah!").Negative("Nope").
 				Title("Would you like to scaffold a basic dbt project into the output directory?").
 				Value(&formResponse.ScaffoldProject),
+			huh.NewInput().
+				Title("What prefix do you want to use for your staging files?").
+				Value(&formResponse.Prefix).
+				Placeholder("stg"),
 		),
 	)
 	project_name_form := huh.NewForm(

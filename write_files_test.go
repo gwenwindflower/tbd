@@ -22,7 +22,7 @@ func TestWriteFiles(t *testing.T) {
 		},
 	}
 	bd := t.TempDir()
-	WriteFiles(ts, bd)
+	WriteFiles(ts, bd, "prefix")
 }
 
 func TestWriteFilesError(t *testing.T) {
@@ -31,7 +31,7 @@ func TestWriteFilesError(t *testing.T) {
 	}
 	bd := t.TempDir()
 
-	err := WriteFiles(ts, bd)
+	err := WriteFiles(ts, bd, "prefix")
 	if err == nil {
 		t.Error("expected error, got nil")
 	} else {

@@ -7,7 +7,7 @@ import (
 	"github.com/gwenwindflower/tbd/shared"
 )
 
-func WriteFiles(ts shared.SourceTables, bd string) error {
+func WriteFiles(ts shared.SourceTables, bd string, prefix string) error {
 	if len(ts.SourceTables) == 0 {
 		return errors.New("no tables to write")
 	}
@@ -19,7 +19,7 @@ func WriteFiles(ts shared.SourceTables, bd string) error {
 	}()
 	go func() {
 		defer wg.Done()
-		WriteStagingModels(ts, bd)
+		WriteStagingModels(ts, bd, prefix)
 	}()
 	wg.Wait()
 	return nil

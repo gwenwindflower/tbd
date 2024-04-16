@@ -64,7 +64,7 @@ func main() {
 			}
 			bd = s
 		}
-		err = WriteFiles(ts, bd)
+		err = WriteFiles(ts, bd, formResponse.Prefix)
 		if err != nil {
 			log.Fatalf("Error writing files: %v\n", err)
 		}
