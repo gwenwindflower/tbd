@@ -23,6 +23,9 @@ type FormResponse struct {
 	UseDbtProfile        bool
 	DbtProfile           string
 	DbtProfileOutput     string
+	CreateProfile        bool
+	ScaffoldProject      bool
+	ProjectName          string
 }
 
 func Forms() (formResponse FormResponse) {
@@ -75,8 +78,23 @@ You'll need:
 			huh.NewConfirm().Affirmative("Yes!").Negative("Nah").
 				Title("Do you have a dbt profile you'd like to connect with?\n(you can enter your credentials manually if not)").
 				Value(&formResponse.UseDbtProfile),
+			huh.NewConfirm().Affirmative("Yeah!").Negative("Nope").
+				Title("Would you like to scaffold a basic dbt project into the output directory?").
+				Value(&formResponse.ScaffoldProject),
 		),
 	)
+	project_name_form := huh.NewForm(
+		huh.NewGroup(huh.NewInput().
+			Title("What is the name of your dbt project?").
+			Value(&formResponse.ProjectName).
+			Placeholder("gondor_patrol_analytics"),
+		))
+	profile_create_form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewConfirm().Affirmative("Yes, pls").Negative("No, thx").
+				Title("Would you like to generate a profiles.yml file from the info you provide next?").
+				Value(&formResponse.CreateProfile),
+		))
 	dbt_form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
@@ -173,6 +191,8 @@ tbd will overwrite any existing files of the same name.`),
 		),
 	)
 	intro_form.WithTheme(huh.ThemeCatppuccin())
+	profile_create_form.WithTheme(huh.ThemeCatppuccin())
+	project_name_form.WithTheme(huh.ThemeCatppuccin())
 	dbt_form.WithTheme(huh.ThemeCatppuccin())
 	warehouse_form.WithTheme(huh.ThemeCatppuccin())
 	snowflake_form.WithTheme(huh.ThemeCatppuccin())
@@ -191,6 +211,16 @@ tbd will overwrite any existing files of the same name.`),
 			log.Fatalf("Error running dbt form %v\n", err)
 		}
 	} else {
+		err = profile_create_form.Run()
+		if err != nil {
+			log.Fatalf("Error running profile create form %v\n", err)
+		}
+		if formResponse.ScaffoldProject {
+			err = project_name_form.Run()
+			if err != nil {
+				log.Fatalf("Error running project name form %v\n", err)
+			}
+		}
 		err = warehouse_form.Run()
 		if err != nil {
 			log.Fatalf("Error running warehouse form %v\n", err)

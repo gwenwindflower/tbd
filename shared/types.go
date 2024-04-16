@@ -18,12 +18,13 @@ type SourceTables struct {
 }
 
 type ConnectionDetails struct {
-	ConnType string
-	Username string
-	Account  string
-	Database string
-	Schema   string
-	Project  string
-	Dataset  string
-	Path     string
+	ConnType    string
+	Username    string
+	Account     string
+	Database    string
+	Schema      string
+	Project     string
+	Dataset     string
+	Path        string
+	ProjectName string
 }

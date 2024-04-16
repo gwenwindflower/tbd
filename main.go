@@ -50,7 +50,17 @@ func main() {
 		if formResponse.GenerateDescriptions {
 			GenerateColumnDescriptions(ts)
 		}
+		if formResponse.CreateProfile {
+			WriteProfile(cd, bd)
+		}
 		PrepBuildDir(bd)
+		if formResponse.ScaffoldProject {
+			s, err := WriteScaffoldProject(cd, bd, formResponse.ProjectName)
+			if err != nil {
+				log.Fatalf("Error scaffolding project: %v\n", err)
+			}
+			bd = s
+		}
 		err = WriteFiles(ts, bd)
 		if err != nil {
 			log.Fatalf("Error writing files: %v\n", err)
