@@ -23,6 +23,9 @@ type FormResponse struct {
 	UseDbtProfile        bool
 	DbtProfile           string
 	DbtProfileOutput     string
+	CreateProfile        bool
+	ScaffoldProject      bool
+	ProjectName          string
 }
 
 func Forms() (formResponse FormResponse) {
@@ -41,7 +44,7 @@ Generates:
 For each table in the designated schema/dataset.
 
 To prepare, make sure you have the following:
-✴︎ An existing dbt profile.yml file to reference
+✴︎ An existing dbt profiles.yml file to reference
 *_OR_*
 ✴︎ The necessary connection details for your warehouse
 
@@ -75,8 +78,23 @@ You'll need:
 			huh.NewConfirm().Affirmative("Yes!").Negative("Nah").
 				Title("Do you have a dbt profile you'd like to connect with?\n(you can enter your credentials manually if not)").
 				Value(&formResponse.UseDbtProfile),
+			huh.NewConfirm().Affirmative("Yeah!").Negative("Nope").
+				Title("Would you like to scaffold a basic dbt project into the output directory?").
+				Value(&formResponse.ScaffoldProject),
 		),
 	)
+	project_name_form := huh.NewForm(
+		huh.NewGroup(huh.NewInput().
+			Title("What is the name of your dbt project?").
+			Value(&formResponse.ProjectName).
+			Placeholder("gondor_patrol_analytics"),
+		))
+	profile_create_form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewConfirm().Affirmative("Yes, pls").Negative("No, thx").
+				Title("Would you like to generate a profiles.yml file from the info you provide next?").
+				Value(&formResponse.CreateProfile),
+		))
 	dbt_form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
@@ -155,8 +173,8 @@ Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 			huh.NewNote().
 				Title("🚧🚨 Choose your build directory carefully! 🚨🚧").
 				Description(`Choose a _new_ or _empty_ directory.
-If you use an existing directory,
-tbd will overwrite any existing files of the same name.`),
+If you choose an existing, populated directory 
+tbd will _intentionally error out_.`),
 		),
 		huh.NewGroup(
 			huh.NewInput().
@@ -173,6 +191,8 @@ tbd will overwrite any existing files of the same name.`),
 		),
 	)
 	intro_form.WithTheme(huh.ThemeCatppuccin())
+	profile_create_form.WithTheme(huh.ThemeCatppuccin())
+	project_name_form.WithTheme(huh.ThemeCatppuccin())
 	dbt_form.WithTheme(huh.ThemeCatppuccin())
 	warehouse_form.WithTheme(huh.ThemeCatppuccin())
 	snowflake_form.WithTheme(huh.ThemeCatppuccin())
@@ -191,6 +211,16 @@ tbd will overwrite any existing files of the same name.`),
 			log.Fatalf("Error running dbt form %v\n", err)
 		}
 	} else {
+		err = profile_create_form.Run()
+		if err != nil {
+			log.Fatalf("Error running profile create form %v\n", err)
+		}
+		if formResponse.ScaffoldProject {
+			err = project_name_form.Run()
+			if err != nil {
+				log.Fatalf("Error running project name form %v\n", err)
+			}
+		}
 		err = warehouse_form.Run()
 		if err != nil {
 			log.Fatalf("Error running warehouse form %v\n", err)

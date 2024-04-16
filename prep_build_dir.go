@@ -1,16 +1,30 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 )
 
-func PrepBuildDir(buildDir string) {
-	_, err := os.Stat(buildDir)
+func PrepBuildDir(bd string) error {
+	_, err := os.Stat(bd)
 	if os.IsNotExist(err) {
-		dirErr := os.MkdirAll(buildDir, 0755)
+		dirErr := os.MkdirAll(bd, 0755)
 		if dirErr != nil {
-			log.Fatalf("Failed to create directory %v", dirErr)
+			return dirErr
 		}
+	} else if err == nil {
+		files, err := os.ReadDir(bd)
+		if err != nil {
+			log.Fatalf("Failed to check build target directory %v", err)
+		}
+		if len(files) == 0 {
+			return nil
+		} else {
+			return errors.New("build directory is not empty")
+		}
+	} else {
+		return err
 	}
+	return nil
 }
