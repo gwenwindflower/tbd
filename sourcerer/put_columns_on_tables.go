@@ -3,79 +3,51 @@ package sourcerer
 import (
 	"context"
 	"fmt"
-	"log"
 	"regexp"
 	"sync"
 
 	"github.com/gwenwindflower/tbd/shared"
 )
 
-func (sfc *SfConn) PutColumnsOnTables(ctx context.Context, tables shared.SourceTables) {
+func PutColumnsOnTables(ctx context.Context, ts shared.SourceTables, dbc DbConn) error {
 	dataTypeGroupMap := map[string]string{
-		"(text|char)":     "text",
-		"(float|int|num)": "numbers",
-		"(bool|bit)":      "booleans",
-		"json":            "json",
-		"date":            "datetimes",
-		"timestamp":       "timestamps",
+		"(text|char|varchar)":                                "text",
+		"(float|int|num|number|bigint|float32|float64|int8)": "numbers",
+		"(bool|boolean|bit)":                                 "booleans",
+		"(json|struct)":                                      "json",
+		"(date|datetime)":                                    "datetimes",
+		"(timestamp|timestamptz|timestampntz|timestampltz)":  "timestamps",
 	}
-	columnPutter(ctx, tables, sfc, dataTypeGroupMap)
-}
-
-func (bqc *BqConn) PutColumnsOnTables(ctx context.Context, tables shared.SourceTables) {
-	dataTypeGroupMap := map[string]string{
-		"(string)":    "text",
-		"(float|int)": "numbers",
-		"(bool)":      "booleans",
-		"(json)":      "json",
-		"(date)":      "datetimes",
-		"(timestamp)": "timestamps",
-	}
-	columnPutter(ctx, tables, bqc, dataTypeGroupMap)
-}
-
-func (dc *DuckConn) PutColumnsOnTables(ctx context.Context, tables shared.SourceTables) {
-	dataTypeGroupMap := map[string]string{
-		"(string|varchar)": "text",
-		"(float|int)":      "numbers",
-		"(bool)":           "booleans",
-		"(json)":           "json",
-		"(date)":           "datetimes",
-		"(timestamp)":      "timestamps",
-	}
-	columnPutter(ctx, tables, dc, dataTypeGroupMap)
-}
-
-func columnPutter(ctx context.Context, tables shared.SourceTables, conn DbConn, dataTypeGroupMap map[string]string) {
 	mutex := sync.Mutex{}
 
 	var wg sync.WaitGroup
-	wg.Add(len(tables.SourceTables))
-	for i := range tables.SourceTables {
-		go func(i int) {
+	wg.Add(len(ts.SourceTables))
+	for i := range ts.SourceTables {
+		go func(i int) error {
 			defer wg.Done()
 
-			columns, err := conn.GetColumns(ctx, tables.SourceTables[i])
+			columns, err := dbc.GetColumns(ctx, ts.SourceTables[i])
 			if err != nil {
-				log.Fatalf("Error fetching columns for table %s: %v\n", tables.SourceTables[i].Name, err)
-				return
+				return err
 			}
 
 			mutex.Lock()
-			tables.SourceTables[i].Columns = columns
-			tables.SourceTables[i].DataTypeGroups = make(map[string][]shared.Column)
+			ts.SourceTables[i].Columns = columns
+			ts.SourceTables[i].DataTypeGroups = make(map[string][]shared.Column)
 			// Create a map of data types groups to hold column slices by data type
 			// This lets us group columns by their data type e.g. in templates
-			for j := range tables.SourceTables[i].Columns {
+			for j := range ts.SourceTables[i].Columns {
 				for k, v := range dataTypeGroupMap {
 					r, _ := regexp.Compile(fmt.Sprintf(`(?i).*%s.*`, k))
-					if r.MatchString(tables.SourceTables[i].Columns[j].DataType) {
-						tables.SourceTables[i].DataTypeGroups[v] = append(tables.SourceTables[i].DataTypeGroups[v], tables.SourceTables[i].Columns[j])
+					if r.MatchString(ts.SourceTables[i].Columns[j].DataType) {
+						ts.SourceTables[i].DataTypeGroups[v] = append(ts.SourceTables[i].DataTypeGroups[v], ts.SourceTables[i].Columns[j])
 					}
 				}
 			}
 			mutex.Unlock()
+			return nil
 		}(i)
 	}
 	wg.Wait()
+	return nil
 }

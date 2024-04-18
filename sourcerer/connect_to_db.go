@@ -13,7 +13,7 @@ import (
 	_ "github.com/snowflakedb/gosnowflake"
 )
 
-func (sfc *SfConn) ConnectToDB(ctx context.Context) (err error) {
+func (sfc *SfConn) ConnectToDb(ctx context.Context) (err error) {
 	connStr := fmt.Sprintf(
 		"%s@%s/%s/%s?authenticator=externalbrowser",
 		sfc.Username,
@@ -31,7 +31,7 @@ func (sfc *SfConn) ConnectToDB(ctx context.Context) (err error) {
 	return err
 }
 
-func (bqc *BqConn) ConnectToDB(ctx context.Context) (err error) {
+func (bqc *BqConn) ConnectToDb(ctx context.Context) (err error) {
 	_, bqc.Cancel = context.WithTimeout(ctx, 1*time.Minute)
 	defer bqc.Cancel()
 	bqc.Bq, err = bigquery.NewClient(ctx, bqc.Project)
@@ -41,7 +41,7 @@ func (bqc *BqConn) ConnectToDB(ctx context.Context) (err error) {
 	return err
 }
 
-func (dc *DuckConn) ConnectToDB(ctx context.Context) (err error) {
+func (dc *DuckConn) ConnectToDb(ctx context.Context) (err error) {
 	_, dc.Cancel = context.WithTimeout(ctx, 1*time.Minute)
 	defer dc.Cancel()
 	if _, err := os.Stat(dc.Path); os.IsNotExist(err) {
