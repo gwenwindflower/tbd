@@ -4,6 +4,7 @@ go 1.22.0
 
 require (
 	cloud.google.com/go/bigquery v1.60.0
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/charmbracelet/huh v0.3.1-0.20240306161957-71f31c155b08
 	github.com/charmbracelet/huh/spinner v0.0.0-20240306161957-71f31c155b08
 	github.com/jarcoal/httpmock v1.3.1
@@ -23,7 +24,6 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.4.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.1.2 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.0.0 // indirect
-	github.com/DATA-DOG/go-sqlmock v1.5.2 // indirect
 	github.com/JohnCGriffin/overflow v0.0.0-20211019200055-46fa312c352c // indirect
 	github.com/apache/arrow/go/v14 v14.0.2 // indirect
 	github.com/apache/arrow/go/v15 v15.0.0 // indirect
