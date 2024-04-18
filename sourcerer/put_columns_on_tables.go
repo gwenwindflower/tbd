@@ -22,11 +22,11 @@ func PutColumnsOnTables(ctx context.Context, ts shared.SourceTables, dbc DbConn)
 	mutex := sync.Mutex{}
 
 	bar := progressbar.NewOptions(len(ts.SourceTables),
-		progressbar.OptionSetWidth(5),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowElapsedTimeOnFinish(),
+		progressbar.OptionFullWidth(),
 		progressbar.OptionEnableColorCodes(true),
-		progressbar.OptionSetDescription("[magenta]🏎️✨ Getting warehouse metadata...[reset]"),
+		progressbar.OptionSetDescription("🏎️✨"),
 	)
 	var wg sync.WaitGroup
 	wg.Add(len(ts.SourceTables))

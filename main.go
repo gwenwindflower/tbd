@@ -73,6 +73,5 @@ func main() {
 		log.Fatalf("Error writing files: %v\n", err)
 	}
 	e.ProcessingElapsed = time.Since(e.ProcessingStart).Seconds()
-	fmt.Printf("\n🏁 Done in %.1fs fetching data and %.1fs writing files! ", e.DbElapsed, e.ProcessingElapsed)
-	fmt.Printf("\nYour YAML and SQL files are in the %s directory.", formResponse.BuildDir)
+	fmt.Printf("\n🏁 Done in %.1fs fetching data and %.1fs writing files!\nYour YAML and SQL files are in the %s directory.", e.DbElapsed, e.ProcessingElapsed, formResponse.BuildDir)
 }
