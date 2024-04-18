@@ -11,6 +11,7 @@ type SourceTable struct {
 	DataTypeGroups map[string][]Column `yaml:"-"`
 	Name           string              `yaml:"name"`
 	Columns        []Column            `yaml:"columns"`
+	Schema         string              `yaml:"-"`
 }
 
 type SourceTables struct {

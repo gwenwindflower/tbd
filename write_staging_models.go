@@ -15,12 +15,12 @@ import (
 //go:embed *.sql
 var stagingTemplate embed.FS
 
-func WriteStagingModels(tables shared.SourceTables, buildDir string, prefix string) {
+func WriteStagingModels(ts shared.SourceTables, buildDir string, prefix string) {
 	var wg sync.WaitGroup
 
-	for _, table := range tables.SourceTables {
+	for _, t := range ts.SourceTables {
 		wg.Add(1)
-		go func(table shared.SourceTable) {
+		go func(t shared.SourceTable) {
 			defer wg.Done()
 
 			tmpl := template.New("staging_template.sql").Funcs(template.FuncMap{"lower": strings.ToLower})
@@ -29,18 +29,18 @@ func WriteStagingModels(tables shared.SourceTables, buildDir string, prefix stri
 				log.Fatalf("Failed to parse template %v\n", err)
 			}
 
-			filename := fmt.Sprintf(buildDir + "/" + prefix + "_" + strings.ToLower(table.Name) + ".sql")
+			filename := fmt.Sprintf(buildDir + "/" + prefix + "_" + strings.ToLower(t.Name) + ".sql")
 			outputFile, err := os.Create(filename)
 			if err != nil {
 				log.Fatalf("Failed to create file %v\n", err)
 			}
 			defer outputFile.Close()
 
-			err = tmpl.Execute(outputFile, table)
+			err = tmpl.Execute(outputFile, t)
 			if err != nil {
 				log.Fatalf("Failed to execute template %v\n", err)
 			}
-		}(table)
+		}(t)
 	}
 	wg.Wait()
 }

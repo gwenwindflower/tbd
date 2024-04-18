@@ -45,7 +45,8 @@ Generates:
 For each table in the designated schema/dataset.
 
 To prepare, make sure you have the following:
-✴︎ An existing dbt profiles.yml file to reference
+✴︎ The name of an existing dbt profile to reference
+(Can be found in the profiles.yml file)
 *_OR_*
 ✴︎ The necessary connection details for your warehouse
 
