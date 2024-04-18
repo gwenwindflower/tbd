@@ -31,7 +31,7 @@ type FormResponse struct {
 
 func Forms() (formResponse FormResponse) {
 	formResponse = FormResponse{}
-	intro_form := huh.NewForm(
+	introForm := huh.NewForm(
 		huh.NewGroup(
 			huh.NewNote().
 				Title("🏁 Welcome to tbd! 🏎️✨").
@@ -88,19 +88,19 @@ You'll need:
 				Placeholder("stg"),
 		),
 	)
-	project_name_form := huh.NewForm(
+	projectNameForm := huh.NewForm(
 		huh.NewGroup(huh.NewInput().
 			Title("What is the name of your dbt project?").
 			Value(&formResponse.ProjectName).
 			Placeholder("gondor_patrol_analytics"),
 		))
-	profile_create_form := huh.NewForm(
+	profileCreateForm := huh.NewForm(
 		huh.NewGroup(
 			huh.NewConfirm().Affirmative("Yes, pls").Negative("No, thx").
 				Title("Would you like to generate a profiles.yml file from the info you provide next?").
 				Value(&formResponse.CreateProfile),
 		))
-	dbt_form := huh.NewForm(
+	dbtForm := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
 				Title("What is the dbt profile name you'd like to use?").
@@ -115,7 +115,7 @@ You'll need:
 				Value(&formResponse.Schema),
 		),
 	)
-	warehouse_form := huh.NewForm(
+	warehouseForm := huh.NewForm(
 		huh.NewGroup(
 			huh.NewSelect[string]().
 				Title("Choose your warehouse.").
@@ -127,7 +127,7 @@ You'll need:
 				Value(&formResponse.Warehouse),
 		),
 	)
-	snowflake_form := huh.NewForm(
+	snowflakeForm := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
 				Title("What is your username?").
@@ -146,7 +146,7 @@ You'll need:
 				Value(&formResponse.Database).Placeholder("gondor"),
 		),
 	)
-	bigquery_form := huh.NewForm(
+	bigqueryForm := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().Title("What is your GCP project's id?").
 				Value(&formResponse.Project).Placeholder("legolas_inc"),
@@ -154,7 +154,7 @@ You'll need:
 				Value(&formResponse.Dataset).Placeholder("mirkwood"),
 		),
 	)
-	duckdb_form := huh.NewForm(
+	duckdbForm := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().Title(`What is the path to your DuckDB database?
 Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
@@ -165,7 +165,7 @@ Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 				Value(&formResponse.Schema).Placeholder("raw"),
 		),
 	)
-	llm_form := huh.NewForm(
+	llmForm := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
 				Title("What env var holds your Groq key?").
@@ -173,7 +173,7 @@ Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 				Value(&formResponse.GroqKeyEnvVar),
 		),
 	)
-	dir_form := huh.NewForm(
+	dirForm := huh.NewForm(
 		huh.NewGroup(
 			huh.NewNote().
 				Title("🚧🚨 Choose your build directory carefully! 🚨🚧").
@@ -188,64 +188,64 @@ tbd will _intentionally error out_.`),
 				Placeholder("build"),
 		),
 	)
-	confirm_form := huh.NewForm(
+	confirmForm := huh.NewForm(
 		huh.NewGroup(
 			huh.NewConfirm().Affirmative("Let's go!").Negative("Nevermind").
 				Title("🚦Are you ready to do this thing?🚦").
 				Value(&formResponse.Confirm),
 		),
 	)
-	intro_form.WithTheme(huh.ThemeCatppuccin())
-	profile_create_form.WithTheme(huh.ThemeCatppuccin())
-	project_name_form.WithTheme(huh.ThemeCatppuccin())
-	dbt_form.WithTheme(huh.ThemeCatppuccin())
-	warehouse_form.WithTheme(huh.ThemeCatppuccin())
-	snowflake_form.WithTheme(huh.ThemeCatppuccin())
-	bigquery_form.WithTheme(huh.ThemeCatppuccin())
-	duckdb_form.WithTheme(huh.ThemeCatppuccin())
-	llm_form.WithTheme(huh.ThemeCatppuccin())
-	dir_form.WithTheme(huh.ThemeCatppuccin())
-	confirm_form.WithTheme(huh.ThemeCatppuccin())
-	err := intro_form.Run()
+	introForm.WithTheme(huh.ThemeCatppuccin())
+	profileCreateForm.WithTheme(huh.ThemeCatppuccin())
+	projectNameForm.WithTheme(huh.ThemeCatppuccin())
+	dbtForm.WithTheme(huh.ThemeCatppuccin())
+	warehouseForm.WithTheme(huh.ThemeCatppuccin())
+	snowflakeForm.WithTheme(huh.ThemeCatppuccin())
+	bigqueryForm.WithTheme(huh.ThemeCatppuccin())
+	duckdbForm.WithTheme(huh.ThemeCatppuccin())
+	llmForm.WithTheme(huh.ThemeCatppuccin())
+	dirForm.WithTheme(huh.ThemeCatppuccin())
+	confirmForm.WithTheme(huh.ThemeCatppuccin())
+	err := introForm.Run()
 	if err != nil {
 		log.Fatalf("Error running intro form %v\n", err)
 	}
 	if formResponse.UseDbtProfile {
-		err = dbt_form.Run()
+		err = dbtForm.Run()
 		if err != nil {
 			log.Fatalf("Error running dbt form %v\n", err)
 		}
 	} else {
-		err = profile_create_form.Run()
+		err = profileCreateForm.Run()
 		if err != nil {
 			log.Fatalf("Error running profile create form %v\n", err)
 		}
 		if formResponse.ScaffoldProject {
-			err = project_name_form.Run()
+			err = projectNameForm.Run()
 			if err != nil {
 				log.Fatalf("Error running project name form %v\n", err)
 			}
 		}
-		err = warehouse_form.Run()
+		err = warehouseForm.Run()
 		if err != nil {
 			log.Fatalf("Error running warehouse form %v\n", err)
 		}
 		switch formResponse.Warehouse {
 		case "snowflake":
-			err = snowflake_form.Run()
+			err = snowflakeForm.Run()
 			if err != nil {
 				log.Fatalf("Error running snowflake form %v\n", err)
 			}
 		case "bigquery":
 			{
-				err = bigquery_form.Run()
+				err = bigqueryForm.Run()
 				if err != nil {
 					log.Fatalf("Error running bigquery form %v\n", err)
 				}
 			}
 		case "duckdb":
 			{
-				err = duckdb_form.Run()
+				err = duckdbForm.Run()
 				if err != nil {
 					log.Fatalf("Error running duckdb form %v\n", err)
 				}
@@ -253,16 +253,16 @@ tbd will _intentionally error out_.`),
 		}
 	}
 	if formResponse.GenerateDescriptions {
-		err = llm_form.Run()
+		err = llmForm.Run()
 		if err != nil {
 			log.Fatalf("Error running LLM features form %v\n", err)
 		}
 	}
-	err = dir_form.Run()
+	err = dirForm.Run()
 	if err != nil {
 		log.Fatalf("Error running build directory form %v\n", err)
 	}
-	err = confirm_form.Run()
+	err = confirmForm.Run()
 	if err != nil {
 		log.Fatalf("Error running confirmation form %v\n", err)
 	}

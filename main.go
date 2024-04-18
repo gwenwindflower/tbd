@@ -36,11 +36,19 @@ func main() {
 
 		dbc, err := sourcerer.GetConn(cd)
 		if err != nil {
-			log.Fatalf("Error getting connection: %v\n", err)
+			log.Fatalf("Error getting database connection: %v\n", err)
 		}
-		ts, err := dbc.GetSources(ctx)
+		err = dbc.ConnectToDb(ctx)
+		if err != nil {
+			log.Fatalf("Error connecting to database: %v\n", err)
+		}
+		ts, err := dbc.GetSourceTables(ctx)
 		if err != nil {
 			log.Fatalf("Error getting sources: %v\n", err)
+		}
+		err = sourcerer.PutColumnsOnTables(ctx, ts, dbc)
+		if err != nil {
+			log.Fatalf("Error putting columns on tables: %v\n", err)
 		}
 
 		e.DbElapsed = time.Since(e.DbStart).Seconds()
