@@ -12,10 +12,9 @@ import (
 )
 
 type DbConn interface {
-	ConnectToDB(ctx context.Context) error
-	GetSources(ctx context.Context) (shared.SourceTables, error)
+	ConnectToDb(ctx context.Context) error
+	GetSourceTables(ctx context.Context) (shared.SourceTables, error)
 	GetColumns(ctx context.Context, t shared.SourceTable) ([]shared.Column, error)
-	PutColumnsOnTables(ctx context.Context, tables shared.SourceTables)
 }
 
 type SfConn struct {

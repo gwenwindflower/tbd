@@ -10,15 +10,10 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-func (sfc *SfConn) GetSources(ctx context.Context) (shared.SourceTables, error) {
+func (sfc *SfConn) GetSourceTables(ctx context.Context) (shared.SourceTables, error) {
 	ts := shared.SourceTables{}
-
-	err := sfc.ConnectToDB(ctx)
 	defer sfc.Cancel()
-	if err != nil {
-		log.Fatalf("Couldn't connect to database: %v\n", err)
-	}
-	rows, err := sfc.Db.QueryContext(ctx, fmt.Sprintf("SELECT table_name FROM information_schema.tables where table_schema = '%s'", sfc.Schema))
+	rows, err := sfc.Db.QueryContext(ctx, fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", sfc.Schema))
 	if err != nil {
 		log.Fatalf("Error fetching tables: %v\n", err)
 	}
@@ -30,18 +25,12 @@ func (sfc *SfConn) GetSources(ctx context.Context) (shared.SourceTables, error) 
 		}
 		ts.SourceTables = append(ts.SourceTables, table)
 	}
-	sfc.PutColumnsOnTables(ctx, ts)
-
 	return ts, nil
 }
 
-func (bqc *BqConn) GetSources(ctx context.Context) (shared.SourceTables, error) {
+func (bqc *BqConn) GetSourceTables(ctx context.Context) (shared.SourceTables, error) {
 	ts := shared.SourceTables{}
-	err := bqc.ConnectToDB(ctx)
 	defer bqc.Cancel()
-	if err != nil {
-		log.Fatalf("Couldn't connect to database: %v\n", err)
-	}
 	bqDataset := bqc.Bq.Dataset(bqc.Dataset)
 	tableIter := bqDataset.Tables(ctx)
 	for {
@@ -54,17 +43,12 @@ func (bqc *BqConn) GetSources(ctx context.Context) (shared.SourceTables, error) 
 		}
 		ts.SourceTables = append(ts.SourceTables, shared.SourceTable{Name: table.TableID})
 	}
-	bqc.PutColumnsOnTables(ctx, ts)
 	return ts, nil
 }
 
-func (dc *DuckConn) GetSources(ctx context.Context) (shared.SourceTables, error) {
+func (dc *DuckConn) GetSourceTables(ctx context.Context) (shared.SourceTables, error) {
 	ts := shared.SourceTables{}
-	err := dc.ConnectToDB(ctx)
 	defer dc.Cancel()
-	if err != nil {
-		log.Fatalf("Couldn't connect to database: %v\n", err)
-	}
 	q := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", dc.Schema)
 	rows, err := dc.Db.QueryContext(ctx, q)
 	if err != nil {
@@ -78,6 +62,5 @@ func (dc *DuckConn) GetSources(ctx context.Context) (shared.SourceTables, error)
 		}
 		ts.SourceTables = append(ts.SourceTables, table)
 	}
-	dc.PutColumnsOnTables(ctx, ts)
 	return ts, nil
 }
