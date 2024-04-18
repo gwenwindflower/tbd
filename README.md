@@ -7,6 +7,17 @@
 
 _**Disclaimer**: This project is not affiliated with dbt Labs in any way. It is a personal project and is not officially supported by dbt Labs. I work at dbt Labs, but I develop this project in my own time._
 
+tbd quickly generates code for new and existing dbt projects with a variety of features:
+
+- generates dbt sources and staging models from your raw schemas' metadata
+- scaffolds out a complete dbt project (_optional_)
+- saves connection details as dbt profiles for future use (_optional_)
+- uses Groq to infer documentation and tests for your sources (_optional_)
+
+It's designed to be super fast and easy to use with a friendly TUI that fast forwards to writing meaningful dbt models as quickly as possible.
+
+It's the **easy button** for dbt.
+
 ## Supported warehouses
 
 - [x] BigQuery
