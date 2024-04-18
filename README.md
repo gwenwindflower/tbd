@@ -14,7 +14,7 @@ tbd quickly generates code for new and existing dbt projects with a variety of f
 - saves connection details as dbt profiles for future use (_optional_)
 - uses Groq to infer documentation and tests for your sources (_optional_)
 
-It's designed to be super fast and easy to use with a friendly TUI that fast forwards to writing meaningful dbt models as quickly as possible.
+It's designed to be super fast and easy to use with a friendly TUI that fast forwards you to writing meaningful dbt models as quickly as possible.
 
 It's the **easy button** for dbt.
 
