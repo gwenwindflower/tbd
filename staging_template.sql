@@ -2,7 +2,7 @@ with
 
 source as (
 
-    select * from {{ "{{" }} ref('{{.Name}}') {{ "}}" }}
+    select * from {{ "{{" }} source('{{.Schema}}', '{{.Name}}') {{ "}}" }}
 
 ),
 

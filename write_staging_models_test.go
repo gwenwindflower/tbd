@@ -11,7 +11,8 @@ func TestWriteStagingModels(t *testing.T) {
 	ts := shared.SourceTables{
 		SourceTables: []shared.SourceTable{
 			{
-				Name: "table1",
+				Name:   "table1",
+				Schema: "raw",
 				Columns: []shared.Column{
 					{
 						Name:     "COLUMN3",
@@ -43,7 +44,7 @@ func TestWriteStagingModels(t *testing.T) {
 
 source as (
 
-    select * from {{ ref('table1') }}
+    select * from {{ source('raw', 'table1') }}
 
 ),
 

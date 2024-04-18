@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/gwenwindflower/tbd/shared"
+	"github.com/schollz/progressbar/v3"
 )
 
 func PutColumnsOnTables(ctx context.Context, ts shared.SourceTables, dbc DbConn) error {
@@ -20,6 +21,13 @@ func PutColumnsOnTables(ctx context.Context, ts shared.SourceTables, dbc DbConn)
 	}
 	mutex := sync.Mutex{}
 
+	bar := progressbar.NewOptions(len(ts.SourceTables),
+		progressbar.OptionShowCount(),
+		progressbar.OptionShowElapsedTimeOnFinish(),
+		progressbar.OptionFullWidth(),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionSetDescription("🏎️✨"),
+	)
 	var wg sync.WaitGroup
 	wg.Add(len(ts.SourceTables))
 	for i := range ts.SourceTables {
@@ -44,6 +52,7 @@ func PutColumnsOnTables(ctx context.Context, ts shared.SourceTables, dbc DbConn)
 					}
 				}
 			}
+			bar.Add(1)
 			mutex.Unlock()
 			return nil
 		}(i)

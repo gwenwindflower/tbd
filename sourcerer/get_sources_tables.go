@@ -23,6 +23,7 @@ func (sfc *SfConn) GetSourceTables(ctx context.Context) (shared.SourceTables, er
 		if err := rows.Scan(&table.Name); err != nil {
 			log.Fatalf("Error scanning tables: %v\n", err)
 		}
+		table.Schema = sfc.Schema
 		ts.SourceTables = append(ts.SourceTables, table)
 	}
 	return ts, nil
@@ -41,7 +42,7 @@ func (bqc *BqConn) GetSourceTables(ctx context.Context) (shared.SourceTables, er
 		if err != nil {
 			log.Fatalf("Error fetching tables: %v\n", err)
 		}
-		ts.SourceTables = append(ts.SourceTables, shared.SourceTable{Name: table.TableID})
+		ts.SourceTables = append(ts.SourceTables, shared.SourceTable{Name: table.TableID, Schema: bqc.Dataset})
 	}
 	return ts, nil
 }
@@ -60,6 +61,7 @@ func (dc *DuckConn) GetSourceTables(ctx context.Context) (shared.SourceTables, e
 		if err := rows.Scan(&table.Name); err != nil {
 			log.Fatalf("Error scanning tables: %v\n", err)
 		}
+		table.Schema = dc.Schema
 		ts.SourceTables = append(ts.SourceTables, table)
 	}
 	return ts, nil

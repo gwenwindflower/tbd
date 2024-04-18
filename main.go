@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/charmbracelet/huh/spinner"
 	"github.com/gwenwindflower/tbd/sourcerer"
 )
 
@@ -28,59 +27,51 @@ func main() {
 	cd := SetConnectionDetails(formResponse)
 
 	e := Elapsed{}
-	s := spinner.New()
-	err := s.Action(func() {
-		e.DbStart = time.Now()
+	e.DbStart = time.Now()
 
-		bd := formResponse.BuildDir
-
-		dbc, err := sourcerer.GetConn(cd)
-		if err != nil {
-			log.Fatalf("Error getting database connection: %v\n", err)
-		}
-		err = dbc.ConnectToDb(ctx)
-		if err != nil {
-			log.Fatalf("Error connecting to database: %v\n", err)
-		}
-		ts, err := dbc.GetSourceTables(ctx)
-		if err != nil {
-			log.Fatalf("Error getting sources: %v\n", err)
-		}
-		err = sourcerer.PutColumnsOnTables(ctx, ts, dbc)
-		if err != nil {
-			log.Fatalf("Error putting columns on tables: %v\n", err)
-		}
-
-		e.DbElapsed = time.Since(e.DbStart).Seconds()
-		// End of database interaction, start of processing
-		e.ProcessingStart = time.Now()
-
-		if formResponse.GenerateDescriptions {
-			GenerateColumnDescriptions(ts)
-		}
-		err = PrepBuildDir(bd)
-		if err != nil {
-			log.Fatalf("Error preparing build directory: %v\n", err)
-		}
-		if formResponse.CreateProfile {
-			WriteProfile(cd, bd)
-		}
-		if formResponse.ScaffoldProject {
-			s, err := WriteScaffoldProject(cd, bd, formResponse.ProjectName)
-			if err != nil {
-				log.Fatalf("Error scaffolding project: %v\n", err)
-			}
-			bd = s
-		}
-		err = WriteFiles(ts, bd, formResponse.Prefix)
-		if err != nil {
-			log.Fatalf("Error writing files: %v\n", err)
-		}
-	}).Title("🏎️✨ Generating YAML and SQL files...").Run()
+	bd := formResponse.BuildDir
+	err := PrepBuildDir(bd)
 	if err != nil {
-		log.Fatalf("Error running spinner action: %v\n", err)
+		log.Fatalf("Error preparing build directory: %v\n", err)
+	}
+	dbc, err := sourcerer.GetConn(cd)
+	if err != nil {
+		log.Fatalf("Error getting database connection: %v\n", err)
+	}
+	err = dbc.ConnectToDb(ctx)
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v\n", err)
+	}
+	ts, err := dbc.GetSourceTables(ctx)
+	if err != nil {
+		log.Fatalf("Error getting sources: %v\n", err)
+	}
+	err = sourcerer.PutColumnsOnTables(ctx, ts, dbc)
+	if err != nil {
+		log.Fatalf("Error putting columns on tables: %v\n", err)
+	}
+
+	e.DbElapsed = time.Since(e.DbStart).Seconds()
+	// End of database interaction, start of processing
+	e.ProcessingStart = time.Now()
+
+	if formResponse.GenerateDescriptions {
+		GenerateColumnDescriptions(ts)
+	}
+	if formResponse.CreateProfile {
+		WriteProfile(cd, bd)
+	}
+	if formResponse.ScaffoldProject {
+		s, err := WriteScaffoldProject(cd, bd, formResponse.ProjectName)
+		if err != nil {
+			log.Fatalf("Error scaffolding project: %v\n", err)
+		}
+		bd = s
+	}
+	err = WriteFiles(ts, bd, formResponse.Prefix)
+	if err != nil {
+		log.Fatalf("Error writing files: %v\n", err)
 	}
 	e.ProcessingElapsed = time.Since(e.ProcessingStart).Seconds()
-	fmt.Printf("🏁 Done in %.1fs fetching data and %.1fs writing files! ", e.DbElapsed, e.ProcessingElapsed)
-	fmt.Println("Your YAML and SQL files are in the build directory.")
+	fmt.Printf("\n🏁 Done in %.1fs fetching data and %.1fs writing files!\nYour YAML and SQL files are in the %s directory.", e.DbElapsed, e.ProcessingElapsed, formResponse.BuildDir)
 }
