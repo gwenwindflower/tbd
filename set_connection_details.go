@@ -76,7 +76,12 @@ func SetConnectionDetails(fr FormResponse, ps DbtProfiles) shared.ConnectionDeta
 			{
 				cd = shared.ConnectionDetails{
 					ConnType: fr.Warehouse,
-					Path:     filepath.Join(wd, fr.Path),
+					Path: func() string {
+						if fr.Path == "md:" {
+							return "md:"
+						}
+						return filepath.Join(wd, fr.Path)
+					}(),
 					Database: fr.Database,
 					Schema:   fr.Schema,
 				}

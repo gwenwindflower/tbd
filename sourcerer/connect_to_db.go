@@ -44,6 +44,13 @@ func (bqc *BqConn) ConnectToDb(ctx context.Context) (err error) {
 func (dc *DuckConn) ConnectToDb(ctx context.Context) (err error) {
 	_, dc.Cancel = context.WithTimeout(ctx, 1*time.Minute)
 	defer dc.Cancel()
+	if dc.Path == "md:" {
+		dc.Db, err = sql.Open("duckdb", "md:")
+		if err != nil {
+			log.Fatalf("Could not connect to DuckDB %v\n", err)
+		}
+		return err
+	}
 	if _, err := os.Stat(dc.Path); os.IsNotExist(err) {
 		log.Fatalf("Path does not exist: %v\n", err)
 	}
