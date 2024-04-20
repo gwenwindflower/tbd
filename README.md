@@ -25,6 +25,8 @@ brew install tbd
 tbd
 ```
 
+If you're new to dbt, [check out the wiki](https://github.com/gwenwindflower/tbd/wiki) for some great learning resources and tips on setting up a cozy coding environment!
+
 ## 🔌 Supported warehouses
 
 - [x] BigQuery
@@ -35,8 +37,8 @@ tbd
 - [x] DuckDB
 
 If you don't have a cloud warehouse, but want to spin up a dbt project with `tbd` I recommend either:
-- BigQuery — they have a generous free tier, authenticating with `gcloud` CLI is super easy, and `tbd` requires very few manual configurations. They also have a ton of great public datasets you can model.
-- DuckDB — you can work completely locally and skip the cloud altogether. You will need to find some data, but DuckDB can _very_ easily ingest CSVs, JSON, or Parquet, so if you have some raw data you want to work with, this is a great option as well.
+- **BigQuery** — they have a generous free tier, authenticating with `gcloud` CLI is super easy, and `tbd` requires very few manual configurations. They also have a ton of great public datasets you can model.
+- **DuckDB** — you can work completely locally and skip the cloud altogether. You will need to find some data, but DuckDB can _very_ easily ingest CSVs, JSON, or Parquet, so if you have some raw data you want to work with, this is a great option as well.
 
 ## 💾 Installation
 
