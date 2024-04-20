@@ -19,13 +19,15 @@ func TestGetSourceTablesSnowflake(t *testing.T) {
 		Schema:   "minas-tirith",
 	}
 	conn, err := GetConn(cd)
+	// TODO: look at testify to clean up assertions
 	if err != nil {
 		t.Errorf("GetConn failed: %v", err)
 	}
 	if conn == nil {
 		t.Errorf("GetConn failed: conn is nil")
 	}
-	SfConn, ok := conn.(*SfConn)
+	// TODO: look for capital vars and lower
+	sfc, ok := conn.(*SfConn)
 	if !ok {
 		t.Errorf("GetConn failed: conn is not of type SfConn")
 	}
@@ -33,12 +35,12 @@ func TestGetSourceTablesSnowflake(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
-	SfConn.Db = db
-	SfConn.Cancel = cancel
-	defer SfConn.Db.Close()
-	q := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", SfConn.Schema)
+	sfc.Db = db
+	sfc.Cancel = cancel
+	defer sfc.Db.Close()
+	q := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", sfc.Schema)
 	mock.ExpectQuery(q).WillReturnRows(sqlmock.NewRows([]string{"table_name"}).AddRow("table1").AddRow("table2"))
-	ts, err := SfConn.GetSourceTables(ctx)
+	ts, err := sfc.GetSourceTables(ctx)
 	if err != nil {
 		t.Errorf("GetSources failed: %v", err)
 	}

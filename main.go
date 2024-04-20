@@ -20,17 +20,24 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	formResponse := Forms()
-	if !formResponse.Confirm {
+	ps, err := FetchDbtProfiles()
+	if err != nil {
+		log.Fatalf("Error fetching dbt profiles: %v\n", err)
+	}
+	fr, err := Forms(ps)
+	if err != nil {
+		log.Fatalf("Error running form: %v\n", err)
+	}
+	if !fr.Confirm {
 		log.Fatal("⛔ User cancelled.")
 	}
-	cd := SetConnectionDetails(formResponse)
+	cd := SetConnectionDetails(fr, ps)
 
 	e := Elapsed{}
 	e.DbStart = time.Now()
 
-	bd := formResponse.BuildDir
-	err := PrepBuildDir(bd)
+	bd := fr.BuildDir
+	err = PrepBuildDir(bd)
 	if err != nil {
 		log.Fatalf("Error preparing build directory: %v\n", err)
 	}
@@ -55,23 +62,23 @@ func main() {
 	// End of database interaction, start of processing
 	e.ProcessingStart = time.Now()
 
-	if formResponse.GenerateDescriptions {
+	if fr.GenerateDescriptions {
 		GenerateColumnDescriptions(ts)
 	}
-	if formResponse.CreateProfile {
+	if fr.CreateProfile {
 		WriteProfile(cd, bd)
 	}
-	if formResponse.ScaffoldProject {
-		s, err := WriteScaffoldProject(cd, bd, formResponse.ProjectName)
+	if fr.ScaffoldProject {
+		s, err := WriteScaffoldProject(cd, bd, fr.ProjectName)
 		if err != nil {
 			log.Fatalf("Error scaffolding project: %v\n", err)
 		}
 		bd = s
 	}
-	err = WriteFiles(ts, bd, formResponse.Prefix)
+	err = WriteFiles(ts, bd, fr.Prefix)
 	if err != nil {
 		log.Fatalf("Error writing files: %v\n", err)
 	}
 	e.ProcessingElapsed = time.Since(e.ProcessingStart).Seconds()
-	fmt.Printf("\n🏁 Done in %.1fs fetching data and %.1fs writing files!\nYour YAML and SQL files are in the %s directory.", e.DbElapsed, e.ProcessingElapsed, formResponse.BuildDir)
+	fmt.Printf("\n🏁 Done in %.1fs fetching data and %.1fs writing files!\nYour YAML and SQL files are in the %s directory.", e.DbElapsed, e.ProcessingElapsed, fr.BuildDir)
 }

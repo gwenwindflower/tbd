@@ -24,7 +24,6 @@ func PutColumnsOnTables(ctx context.Context, ts shared.SourceTables, dbc DbConn)
 	bar := progressbar.NewOptions(len(ts.SourceTables),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowElapsedTimeOnFinish(),
-		progressbar.OptionFullWidth(),
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionSetDescription("🏎️✨"),
 	)

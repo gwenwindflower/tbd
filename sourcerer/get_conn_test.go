@@ -22,11 +22,11 @@ func TestGetConnSnowflake(t *testing.T) {
 	if conn == nil {
 		t.Errorf("GetConn failed: conn is nil")
 	}
-	SfConn, ok := conn.(*SfConn)
+	sfc, ok := conn.(*SfConn)
 	if !ok {
 		t.Errorf("GetConn failed: conn is not of type SfConn")
 	}
-	if SfConn.Account != "DUNEDAIN.SNOWFLAKECOMPUTING.COM" {
+	if sfc.Account != "DUNEDAIN.SNOWFLAKECOMPUTING.COM" {
 		t.Errorf("GetConn failed: Account is not correct")
 	}
 }
@@ -44,11 +44,11 @@ func TestGetConnBigQuery(t *testing.T) {
 	if conn == nil {
 		t.Errorf("GetConn failed: conn is nil")
 	}
-	BqConn, ok := conn.(*BqConn)
+	bqc, ok := conn.(*BqConn)
 	if !ok {
 		t.Errorf("GetConn failed: conn is not of type BqConn")
 	}
-	if BqConn.Dataset != "hall_of_thranduil" {
+	if bqc.Dataset != "hall_of_thranduil" {
 		t.Errorf("GetConn failed: Account is not correct")
 	}
 }
@@ -67,11 +67,11 @@ func TestGetConnDuckDB(t *testing.T) {
 	if conn == nil {
 		t.Errorf("GetConn failed: conn is nil")
 	}
-	DuckConn, ok := conn.(*DuckConn)
+	dc, ok := conn.(*DuckConn)
 	if !ok {
 		t.Errorf("GetConn failed: conn is not of type DuckConn")
 	}
-	if DuckConn.Path != "/path/to/duckdb.db" {
+	if dc.Path != "/path/to/duckdb.db" {
 		t.Errorf("GetConn failed: Account is not correct")
 	}
 }
