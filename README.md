@@ -49,6 +49,31 @@ You can also download a binary from the [releases page](https://github.com/gwenw
 
 If you're looking for a way to rapidly scaffold your dbt project before you use this tool to build your sources and staging models, check out [copier-dbt](https://github.com/gwenwindflower/copier-dbt).
 
+## Warehouse-specific setup
+`tbd` at present, for security, only supports SSO methods of authentication. Please check out the below guides for your target warehouse before using `tbd` to ensure a smooth experience.
+
+### Snowflake
+
+Snowflake uses `externalbrowser` SSO authentication. It requires that you have SSO set up in your warehouse, it will then open a browser tab to authenticate and refresh a token in your local keychain. You'll be prompted to enter your computer's user login to retrieve the token locally.
+
+### BigQuery
+
+BigQuery requires that you have the `gcloud` [CLI installed](https://cloud.google.com/sdk/docs/install) and authenticated for whatever projects you target.
+
+```bash
+gcloud auth application-default login
+```
+
+I will likely bring in some other authentication options soon, but this is the easiest and most secure.
+
+### DuckDB
+
+Using local DuckDB doesn't require authentication, just an existing DuckDB database to query against and the path to that file.
+
+If you'd like to use [MotherDuck](https://motherduck.com/), set an env var `MOTHERDUCK_TOKEN` with your authentication token, then pass the path `md:`.
+
+**NB: until MotherDuck upgrades to v10 this requires you to use DuckDB 0.9.2 locally for compatibility.**
+
 ## Usage
 
 The tool has a lovely TUI interface that will walk you through the necessary steps. You can run it with the following command:
