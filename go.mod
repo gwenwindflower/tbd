@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/bigquery v1.60.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/charmbracelet/huh v0.3.1-0.20240306161957-71f31c155b08
+	github.com/fatih/color v1.16.0
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/marcboeker/go-duckdb v1.6.3
 	github.com/schollz/progressbar/v3 v3.14.2
@@ -70,6 +71,7 @@ require (
 	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
