@@ -7,7 +7,7 @@
 
 _**Disclaimer**: This project is not affiliated with dbt Labs in any way. It is a personal project and is not officially supported by dbt Labs. I work at dbt Labs, but I develop this project in my own time._
 
-tbd quickly generates code for new and existing dbt projects with a variety of features:
+`tbd` quickly generates code for new and existing dbt projects with a variety of features:
 
 - generates dbt sources and staging models from your raw schemas' metadata
 - scaffolds out a complete dbt project (_optional_)
@@ -16,7 +16,7 @@ tbd quickly generates code for new and existing dbt projects with a variety of f
 
 It's designed to be super fast and easy to use with a friendly TUI that fast forwards you to writing meaningful dbt models as quickly as possible.
 
-It's the **easy button** for dbt.
+### It's the **_easy button_** for dbt projects.
 
 ## Supported warehouses
 
