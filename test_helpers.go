@@ -8,7 +8,7 @@ import (
 	"github.com/gwenwindflower/tbd/shared"
 )
 
-func CreateTempDbtProfile(t *testing.T) string {
+func CreateTempDbtProfiles(t *testing.T) string {
 	content := []byte(`
 elf:
   target: dev

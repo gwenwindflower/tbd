@@ -89,8 +89,6 @@ github.com/charmbracelet/bubbletea v0.25.0 h1:bAfwk7jRz7FKFl9RzlIULPkStffg5k6pNt
 github.com/charmbracelet/bubbletea v0.25.0/go.mod h1:EN3QDR1T5ZdWmdfDzYcqOCAps45+QIJbLOBxmVNWNNg=
 github.com/charmbracelet/huh v0.3.1-0.20240306161957-71f31c155b08 h1:2SLao5UVJt6qBafbtLG6Zem7AyTEeOKcipTKK9pstMY=
 github.com/charmbracelet/huh v0.3.1-0.20240306161957-71f31c155b08/go.mod h1:3bNz/oITPP07NndDV0YFj7mxLytf16ZOHrvhpW2O7CI=
-github.com/charmbracelet/huh/spinner v0.0.0-20240306161957-71f31c155b08 h1:kO5eMMxyCJ6m7gdpGQ7OomrMdfsKVPgC4aB/focl/HE=
-github.com/charmbracelet/huh/spinner v0.0.0-20240306161957-71f31c155b08/go.mod h1:nrBG0YEHaxdbqHXW1xvG1hPqkuac9Eg7RTMvogiXuz0=
 github.com/charmbracelet/lipgloss v0.9.1 h1:PNyd3jvaJbg4jRHKWXnCj1akQm4rh8dbEzN1p/u1KWg=
 github.com/charmbracelet/lipgloss v0.9.1/go.mod h1:1mPmG4cxScwUQALAAnacHaigiiHB9Pmr+v1VEawJl6I=
 github.com/charmbracelet/x/exp/strings v0.0.0-20240304160204-3835fda67169 h1:1QdJhraY3DLWdZqVys2qYB2MT5/uo/WrpeEjRpPWcvg=

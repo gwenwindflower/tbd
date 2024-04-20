@@ -19,7 +19,11 @@ func TestSetConnectionDetailsWithoutDbtProfile(t *testing.T) {
 		BuildDir:             "test_build",
 		Confirm:              true,
 	}
-	connectionDetails := SetConnectionDetails(formResponse)
+	ps, err := FetchDbtProfiles()
+	if err != nil {
+		t.Errorf("Error fetching dbt profiles: %v", err)
+	}
+	connectionDetails := SetConnectionDetails(formResponse, ps)
 	want := shared.ConnectionDetails{
 		ConnType: "snowflake",
 		Username: "aragorn",
@@ -33,19 +37,23 @@ func TestSetConnectionDetailsWithoutDbtProfile(t *testing.T) {
 }
 
 func TestSetConnectionDetailsWithDbtProfile(t *testing.T) {
-	CreateTempDbtProfile(t)
+	CreateTempDbtProfiles(t)
+	ps, err := FetchDbtProfiles()
+	if err != nil {
+		t.Errorf("Error fetching dbt profiles: %v", err)
+	}
 	defer os.RemoveAll(os.Getenv("HOME"))
 	defer os.Unsetenv("HOME")
 	formResponse := FormResponse{
 		UseDbtProfile:        true,
-		DbtProfile:           "elf",
+		DbtProfileName:       "elf",
 		DbtProfileOutput:     "dev",
 		Schema:               "hall_of_thranduil",
 		GenerateDescriptions: false,
 		BuildDir:             "test_build",
 		Confirm:              true,
 	}
-	connectionDetails := SetConnectionDetails(formResponse)
+	connectionDetails := SetConnectionDetails(formResponse, ps)
 	want := shared.ConnectionDetails{
 		ConnType: "snowflake",
 		Username: "legolas",
@@ -59,19 +67,23 @@ func TestSetConnectionDetailsWithDbtProfile(t *testing.T) {
 }
 
 func TestSetConnectionDetailsWithDuckDBDbtProfile(t *testing.T) {
-	CreateTempDbtProfile(t)
+	CreateTempDbtProfiles(t)
+	ps, err := FetchDbtProfiles()
+	if err != nil {
+		t.Errorf("Error fetching dbt profiles: %v", err)
+	}
 	defer os.RemoveAll(os.Getenv("HOME"))
 	defer os.Unsetenv("HOME")
 	formResponse := FormResponse{
 		UseDbtProfile:        true,
-		DbtProfile:           "dwarf",
+		DbtProfileName:       "dwarf",
 		DbtProfileOutput:     "dev",
 		Schema:               "balins_tomb",
 		GenerateDescriptions: false,
 		BuildDir:             "test_build",
 		Confirm:              true,
 	}
-	connectionDetails := SetConnectionDetails(formResponse)
+	connectionDetails := SetConnectionDetails(formResponse, ps)
 	want := shared.ConnectionDetails{
 		ConnType: "duckdb",
 		Path:     "/usr/local/var/dwarf.db",
@@ -94,7 +106,11 @@ func TestSetConnectionDetailsWithDuckDBWithoutDbtProfile(t *testing.T) {
 		BuildDir:             "test_build",
 		Confirm:              true,
 	}
-	connectionDetails := SetConnectionDetails(formResponse)
+	ps, err := FetchDbtProfiles()
+	if err != nil {
+		t.Errorf("Error fetching dbt profiles: %v", err)
+	}
+	connectionDetails := SetConnectionDetails(formResponse, ps)
 	wd, err := os.Getwd()
 	if err != nil {
 		t.Errorf("Failed to get working directory: %v", err)

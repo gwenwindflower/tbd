@@ -6,9 +6,9 @@ require (
 	cloud.google.com/go/bigquery v1.60.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/charmbracelet/huh v0.3.1-0.20240306161957-71f31c155b08
-	github.com/charmbracelet/huh/spinner v0.0.0-20240306161957-71f31c155b08
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/marcboeker/go-duckdb v1.6.3
+	github.com/schollz/progressbar/v3 v3.14.2
 	github.com/snowflakedb/gosnowflake v1.9.0
 	google.golang.org/api v0.170.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -84,7 +84,6 @@ require (
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
-	github.com/schollz/progressbar/v3 v3.14.2 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	go.opencensus.io v0.24.0 // indirect

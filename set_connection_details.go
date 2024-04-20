@@ -8,64 +8,64 @@ import (
 	"github.com/gwenwindflower/tbd/shared"
 )
 
-func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
+func SetConnectionDetails(fr FormResponse, ps DbtProfiles) shared.ConnectionDetails {
 	var cd shared.ConnectionDetails
-	if formResponse.UseDbtProfile {
-		profile, err := GetDbtProfile(formResponse.DbtProfile)
+	if fr.UseDbtProfile {
+		profile, err := GetDbtProfile(fr.DbtProfileName, ps)
 		if err != nil {
 			log.Fatalf("Could not get dbt profile %v\n", err)
 		}
-		switch profile.Outputs[formResponse.DbtProfileOutput].ConnType {
+		switch profile.Outputs[fr.DbtProfileOutput].ConnType {
 		case "snowflake":
 			{
 				cd = shared.ConnectionDetails{
-					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
-					Username: profile.Outputs[formResponse.DbtProfileOutput].User,
-					Account:  profile.Outputs[formResponse.DbtProfileOutput].Account,
-					Database: profile.Outputs[formResponse.DbtProfileOutput].Database,
-					Schema:   formResponse.Schema,
+					ConnType: profile.Outputs[fr.DbtProfileOutput].ConnType,
+					Username: profile.Outputs[fr.DbtProfileOutput].User,
+					Account:  profile.Outputs[fr.DbtProfileOutput].Account,
+					Database: profile.Outputs[fr.DbtProfileOutput].Database,
+					Schema:   fr.Schema,
 				}
 			}
 		case "bigquery":
 			{
 				cd = shared.ConnectionDetails{
-					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
-					Project:  profile.Outputs[formResponse.DbtProfileOutput].Project,
-					Dataset:  formResponse.Schema,
+					ConnType: profile.Outputs[fr.DbtProfileOutput].ConnType,
+					Project:  profile.Outputs[fr.DbtProfileOutput].Project,
+					Dataset:  fr.Schema,
 				}
 			}
 		case "duckdb":
 			{
 				cd = shared.ConnectionDetails{
-					ConnType: profile.Outputs[formResponse.DbtProfileOutput].ConnType,
-					Path:     profile.Outputs[formResponse.DbtProfileOutput].Path,
-					Database: profile.Outputs[formResponse.DbtProfileOutput].Database,
-					Schema:   formResponse.Schema,
+					ConnType: profile.Outputs[fr.DbtProfileOutput].ConnType,
+					Path:     profile.Outputs[fr.DbtProfileOutput].Path,
+					Database: profile.Outputs[fr.DbtProfileOutput].Database,
+					Schema:   fr.Schema,
 				}
 			}
 		default:
 			{
-				log.Fatalf("Unsupported connection type %v\n", profile.Outputs[formResponse.DbtProfileOutput].ConnType)
+				log.Fatalf("Unsupported connection type %v\n", profile.Outputs[fr.DbtProfileOutput].ConnType)
 			}
 		}
 	} else {
-		switch formResponse.Warehouse {
+		switch fr.Warehouse {
 		case "snowflake":
 			{
 				cd = shared.ConnectionDetails{
-					ConnType: formResponse.Warehouse,
-					Username: formResponse.Username,
-					Account:  formResponse.Account,
-					Schema:   formResponse.Schema,
-					Database: formResponse.Database,
+					ConnType: fr.Warehouse,
+					Username: fr.Username,
+					Account:  fr.Account,
+					Schema:   fr.Schema,
+					Database: fr.Database,
 				}
 			}
 		case "bigquery":
 			{
 				cd = shared.ConnectionDetails{
-					ConnType: formResponse.Warehouse,
-					Project:  formResponse.Project,
-					Dataset:  formResponse.Dataset,
+					ConnType: fr.Warehouse,
+					Project:  fr.Project,
+					Dataset:  fr.Dataset,
 				}
 			}
 		case "duckdb":
@@ -75,15 +75,15 @@ func SetConnectionDetails(formResponse FormResponse) shared.ConnectionDetails {
 			}
 			{
 				cd = shared.ConnectionDetails{
-					ConnType: formResponse.Warehouse,
-					Path:     filepath.Join(wd, formResponse.Path),
-					Database: formResponse.Database,
-					Schema:   formResponse.Schema,
+					ConnType: fr.Warehouse,
+					Path:     filepath.Join(wd, fr.Path),
+					Database: fr.Database,
+					Schema:   fr.Schema,
 				}
 			}
 		default:
 			{
-				log.Fatalf("Unsupported connection type %v\n", formResponse.Warehouse)
+				log.Fatalf("Unsupported connection type %v\n", fr.Warehouse)
 			}
 		}
 	}
