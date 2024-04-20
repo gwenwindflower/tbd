@@ -102,7 +102,8 @@ _See README for warehouse-specific requirements_
 		huh.NewGroup(
 			huh.NewSelect[string]().
 				Title("Choose a dbt profile:").
-				Options(getProfileOptions(ps)...),
+				Options(getProfileOptions(ps)...).
+				Value(&dfr.DbtProfileName),
 			huh.NewInput().
 				Title("Which 'output' in that profile do you want to use?").
 				Value(&dfr.DbtProfileOutput).
@@ -111,10 +112,12 @@ _See README for warehouse-specific requirements_
 			huh.NewInput().
 				Title("What schema/dataset do you want to generate?").
 				Value(&dfr.Schema).
+				Placeholder("raw").
 				Validate(not_empty),
 			huh.NewInput().
 				Title("What project/database is that schema/dataset in?").
 				Value(&dfr.Schema).
+				Placeholder("jaffle_shop").
 				Validate(not_empty),
 		).WithHideFunc(func() bool {
 			return !dfr.UseDbtProfile
