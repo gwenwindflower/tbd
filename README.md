@@ -27,6 +27,10 @@ It's designed to be super fast and easy to use with a friendly TUI that fast for
 - [ ] Postgres
 - [x] DuckDB
 
+If you don't have a cloud warehouse, but want to spin up a dbt project with `tbd` I recommend either:
+- BigQuery — they have a generous free tier, authenticating with `gcloud` CLI is super easy, and `tbd` requires very few manual configurations. They also have a ton of great public datasets you can model.
+- DuckDB — you can work completely locally and skip the cloud altogether. You will need to find some data, but DuckDB can _very_ easily ingest CSVs, JSON, or Parquet, so if you have some raw data you want to work with, this is a great option as well.
+
 ## 💾 Installation
 
 For the time being this project is **only compatible with MacOS**. Linux and Windows support are definitely on the roadmap, just have to wait for a day when I can dive deep into CGO and understand the intricacies of building for those platforms. The easiest way to install is via Homebrew:
@@ -150,6 +154,6 @@ I'm going to experiment very soon with using structured output conformed to dbt'
 
 ## 🤗 Contributing
 
-I welcome issues and PRs! This is pre-release software and without folks using it and opening issues I won't be able to find the rough edges and smooth them out. So please if you get stuck open an issue and let's figure out how to fix it! 
+I welcome Discussions, Issues, and PRs! This is pre-release software and without folks using it and opening Issues or Discussions I won't be able to find the rough edges and smooth them out. So please if you get stuck open an Issue and let's figure out how to fix it! 
 
 If you're a dbt user and aren't familiar with Go, but interested in learning a bit of it, I'm also happy to help guide you through opening a PR, just let me know 💗.
