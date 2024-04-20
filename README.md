@@ -1,6 +1,6 @@
 # 🏁 tbd 🏎️✨
 
-## A sweet and speedy code generator for dbt
+## 💽 A sweet and speedy code generator for dbt
 
 > [!IMPORTANT]
 > This project is still in its _very_ early stages. It should be relatively safe to use, but don't be surprised by bugs, breaking changes, or missing features. Please feel free to open issues or PRs if you have any feedback! Most importantly, be sure you're always pointing the output at an empty directory, or it may overwrite files with the same names.
@@ -18,7 +18,7 @@ It's designed to be super fast and easy to use with a friendly TUI that fast for
 
 ### It's the **_easy button_** for dbt projects.
 
-## Supported warehouses
+## 🔌 Supported warehouses
 
 - [x] BigQuery
 - [x] Snowflake
@@ -27,7 +27,7 @@ It's designed to be super fast and easy to use with a friendly TUI that fast for
 - [ ] Postgres
 - [x] DuckDB
 
-## Installation
+## 💾 Installation
 
 For the time being this project is **only compatible with MacOS**. Linux and Windows support are definitely on the roadmap, just have to wait for a day when I can dive deep into CGO and understand the intricacies of building for those platforms. The easiest way to install is via Homebrew:
 
@@ -49,14 +49,14 @@ You can also download a binary from the [releases page](https://github.com/gwenw
 
 If you're looking for a way to rapidly scaffold your dbt project before you use this tool to build your sources and staging models, check out [copier-dbt](https://github.com/gwenwindflower/copier-dbt).
 
-## Warehouse-specific setup
+## 🔐 Warehouse-specific setup
 `tbd` at present, for security, only supports SSO methods of authentication. Please check out the below guides for your target warehouse before using `tbd` to ensure a smooth experience.
 
-### Snowflake
+### ❄️ Snowflake
 
-Snowflake uses `externalbrowser` SSO authentication. It requires that you have SSO set up in your warehouse, it will then open a browser tab to authenticate and refresh a token in your local keychain. You'll be prompted to enter your computer's user login to retrieve the token locally.
+Snowflake uses `externalbrowser` SSO authentication. It requires that you have SSO set up in your warehouse, it will then open a browser tab to authenticate and refresh a token in your **local** keychain. You'll be prompted to enter _your computer's user login_ (not your Snowflake password) to retrieve the token locally from your keychain.
 
-### BigQuery
+### 🌯 BigQuery
 
 BigQuery requires that you have the `gcloud` [CLI installed](https://cloud.google.com/sdk/docs/install) and authenticated for whatever projects you target.
 
@@ -66,13 +66,12 @@ gcloud auth application-default login
 
 I will likely bring in some other authentication options soon, but this is the easiest and most secure.
 
-### DuckDB
+### 🦆 DuckDB
 
-Using local DuckDB doesn't require authentication, just an existing DuckDB database to query against and the path to that file.
+Using local DuckDB doesn't require authentication, just an existing DuckDB database to query against and the path to that file. Note that when passing the path manually (i.e. _not_ via a dbt profile) the path should be relative to the current working directory. So if you're in a DuckDB dbt project that has, as is typical, the DuckDB file at the root of the project, you can just pass the name of the file (including the extension, as duckdb files can be either `.duckdb` or `.db`).
 
-If you'd like to use [MotherDuck](https://motherduck.com/), set an env var `MOTHERDUCK_TOKEN` with your authentication token, then pass the path `md:`.
-
-**NB: until MotherDuck upgrades to v10 this requires you to use DuckDB 0.9.2 locally for compatibility.**
+> [!NOTE]
+> I've built-in support for [MotherDuck](https://motherduck.com/), you just need to set an env var called `MOTHERDUCK_TOKEN` with your service token, then pass the path as `md:`, **but** until MotherDuck upgrades to v10 this requires you to use DuckDB 0.9.2 locally for compatibility. MotherDuck says the upgrade will happen any day now so hopefully this note will be removed soon!
 
 ## Usage
 
@@ -93,15 +92,50 @@ your_build_dir/
 └── etc...
 ```
 
-### LLM features
+### 🦙 LLM features
 
-`tbd` has some neat alpha features that are still in development. One of these is the ability to generate documentation and tests for your sources via LLM. It uses [Groq](https://groq.com) running `mixtral-8x7b-32768` to do its inference. It's definitely not perfect, but it's pretty good! It requires setting an environment variable `GROQ_API_KEY` with your Groq API key.
+`tbd` has some neat alpha features that are still in development. One of these is the ability to generate documentation and tests for your sources via LLM. It uses [Groq](https://groq.com) running `llama3-70b-8192` to do its inference. It's not perfect, but it's pretty good! It requires setting an environment variable with your Groq API key beforehand that you'll then pass the name of.
 
-The biggest thing to flag is that while Groq is in free beta, they have a very low rate limit on their API: 30 requests per minute. The actual inference on Groq is _super_ fast, but for now I've had to rate limit the API calls so it will take a minute or several depending on your schema size. Once Groq is out of beta, I'll remove the rate limit, but you'll of course have to pay for the API calls via your Groq account.
+The biggest thing to flag is that while Groq is in free beta, they have a very low rate limit on their API: 30 requests per minute. The actual inference on Groq is _super_ fast, but for now I've had to rate limit the API calls so it will take a few minutes or quite awhile depending on your schema size. Once Groq is out of beta, I'll remove the rate limit, but you'll of course have to pay for the API calls via your Groq account.
 
 I will _definitely_ be adding other LLM providers in the future, probably Anthropic Claude 3 Opus as the next one so you can choose between maximum quality (Claude) or maximum speed (Groq, when I can remove the rate limit).
 
-## To Do
+I'm going to experiment very soon with using structured output conformed to dbt's JSON schema and passing entire tables, rather than iterating through columns, and see how it does with that. If it works that will be significantly faster as it can churn out entire files quickly and the rate limit will be less of a factor.
+
+### 🌊 Example workflows
+
+`tbd` is designed to be self-explanatory, but just in case you get stuck, below are some examples of usage and the options you would select.
+
+#### ✨ Generating staging models, `_sources.yml`, and `profiles.yml` without a dbt profile
+1. Navigate to the directory you keep dbt project in (for me this is `~/dev`), or wherever you want to generate the output directory.
+2. Run `tbd`.
+3. Select 'No' for using a dbt profile.
+4. Select 'No' for scaffolding a dbt project.
+5. Choose your prefix or just hit enter to stick with 'stg'.
+6. Choose 'Yes' for generating a `profiles.yml`.
+7. Choose your warehouse.
+8. Fill out warehouse details — these should point to the _database and schema that you want to generate_.
+9. Choose 'No' for the LLM features.
+10. Enter an output directory name (it needs to either not exist yet or be empty) or just hit enter to stick with 'build'.
+11. Done!
+
+#### 🍊 Scaffolding a dbt project from an existing dbt profile
+1. Ensure that you have the profile you want configured either in `~/.dbt/profiles.yml` or the root of the directory you're going to run tbd in.
+2. Navigate to the directory you keep dbt project in (for me this is `~/dev`), or wherever you want to generate the output directory.
+3. Run `tbd`.
+4. Select 'Yes' for using a dbt profile to connect with.
+5. Select 'Yes' for scaffolding a dbt project.
+6. Choose your prefix or just hit enter to stick with 'stg'.
+7. Give your new project a name.
+8. Select the profile you want to generate models for from the list.
+9. Select the `output` from that profile you want to use (these are typically things like `prod`, `dev`, `staging` etc).
+10. Choose a schema that the profile you selected has access to read from.
+11. Enter the database that schema is in. The schema and the database can be different than the ones specificed in the profile by default, as long as the profile has access to run queries against them.
+12. Choose 'No' for the LLM featues.
+13. Enter an output directory name (it needs to either not exist yet or be empty) or just hit enter to stick with 'build'.
+14. Done!
+
+## 😅 To Do
 
 - [ ] Get to 100% test coverage
 - [ ] Add Claude 3 Opus option
@@ -113,3 +147,9 @@ I will _definitely_ be adding other LLM providers in the future, probably Anthro
 - [x] Add support for DuckDB
 - [ ] Build on Linux
 - [ ] Build on Windows
+
+## 🤗 Contributing
+
+I welcome issues and PRs! This is pre-release software and without folks using it and opening issues I won't be able to find the rough edges and smooth them out. So please if you get stuck open an issue and let's figure out how to fix it! 
+
+If you're a dbt user and aren't familiar with Go, but interested in learning a bit of it, I'm also happy to help guide you through opening a PR, just let me know 💗.
