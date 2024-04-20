@@ -116,7 +116,7 @@ _See README for warehouse-specific requirements_
 				Validate(not_empty),
 			huh.NewInput().
 				Title("What project/database is that schema/dataset in?").
-				Value(&dfr.Schema).
+				Value(&dfr.Database).
 				Placeholder("jaffle_shop").
 				Validate(not_empty),
 		).WithHideFunc(func() bool {
