@@ -104,6 +104,7 @@ func GenerateColumnDescriptions(ts shared.SourceTables) {
 
 	bar := progressbar.NewOptions(len(ts.SourceTables),
 		progressbar.OptionShowCount(),
+		progressbar.OptionSetWidth(30),
 		progressbar.OptionShowElapsedTimeOnFinish(),
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionSetDescription("🤖📝"),

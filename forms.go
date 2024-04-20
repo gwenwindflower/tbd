@@ -55,14 +55,13 @@ func Forms(ps DbtProfiles) (FormResponse, error) {
 	}
 	pinkUnderline := color.New(color.FgMagenta).Add(color.Bold, color.Underline).SprintFunc()
 	greenBold := color.New(color.FgGreen).Add(color.Bold).SprintFunc()
-	blueBold := color.New(color.FgHiBlue).Add(color.Bold).SprintFunc()
 	yellowItalic := color.New(color.FgHiYellow).Add(color.Italic).SprintFunc()
 	greenBoldItalic := color.New(color.FgHiGreen).Add(color.Bold).SprintFunc()
 	redBold := color.New(color.FgHiRed).Add(color.Bold).SprintFunc()
 	err := huh.NewForm(
 		huh.NewGroup(
 			huh.NewNote().
-				Title(fmt.Sprintf("🏁 %s 🏎️✨", blueBold("Welcome to tbd!"))).
+				Title("🏁 Welcome to tbd! 🏎️✨").
 				Description(fmt.Sprintf(`A sweet and speedy code generator for dbt.
 ¸.•✴︎•.¸.•✴︎•.¸.•✴︎•. _%s_ .•✴︎•.¸.•✴︎•.¸.•✴︎•.¸
 To prepare, make sure you have the following:

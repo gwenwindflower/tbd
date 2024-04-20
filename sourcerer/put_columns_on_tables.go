@@ -22,6 +22,7 @@ func PutColumnsOnTables(ctx context.Context, ts shared.SourceTables, dbc DbConn)
 	mutex := sync.Mutex{}
 
 	bar := progressbar.NewOptions(len(ts.SourceTables),
+		progressbar.OptionSetWidth(30),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowElapsedTimeOnFinish(),
 		progressbar.OptionEnableColorCodes(true),
