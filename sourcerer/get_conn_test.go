@@ -75,3 +75,29 @@ func TestGetConnDuckDB(t *testing.T) {
 		t.Errorf("GetConn failed: Account is not correct")
 	}
 }
+
+func TestGetConnPostgres(t *testing.T) {
+	cd := shared.ConnectionDetails{
+		ConnType: "postgres",
+		Host:     "localhost",
+		Port:     5432,
+		Username: "frodo",
+		Password: "0nering",
+		Database: "shire",
+		Schema:   "hobbiton",
+	}
+	conn, err := GetConn(cd)
+	if err != nil {
+		t.Errorf("GetConn failed: %v", err)
+	}
+	if conn == nil {
+		t.Errorf("GetConn failed: conn is nil")
+	}
+	pgc, ok := conn.(*PgConn)
+	if !ok {
+		t.Errorf("GetConn failed: conn is not of type PgConn")
+	}
+	if pgc.Host != "localhost" {
+		t.Errorf("GetConn failed: Host is not correct")
+	}
+}

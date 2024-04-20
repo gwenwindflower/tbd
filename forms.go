@@ -1,32 +1,38 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/charmbracelet/huh"
 	"github.com/fatih/color"
 )
 
 type FormResponse struct {
-	Confirm              bool
-	Warehouse            string
+	Path                 string
 	Username             string
-	Account              string
+	BuildDir             string
+	SslMode              string
 	Database             string
 	Schema               string
 	Project              string
 	Dataset              string
-	Path                 string
-	BuildDir             string
-	GenerateDescriptions bool
+	ProjectName          string
+	Warehouse            string
+	Account              string
 	GroqKeyEnvVar        string
-	UseDbtProfile        bool
+	Password             string
 	DbtProfileName       string
 	DbtProfileOutput     string
-	CreateProfile        bool
-	ScaffoldProject      bool
-	ProjectName          string
+	Port                 string
+	Host                 string
 	Prefix               string
+	GenerateDescriptions bool
+	ScaffoldProject      bool
+	CreateProfile        bool
+	UseDbtProfile        bool
+	Confirm              bool
 }
 
 var not_empty = func(s string) error {
@@ -52,6 +58,8 @@ func Forms(ps DbtProfiles) (FormResponse, error) {
 		BuildDir:      "build",
 		GroqKeyEnvVar: "GROQ_API_KEY",
 		Prefix:        "stg",
+		Host:          "localhost",
+		Port:          "5432",
 	}
 	pinkUnderline := color.New(color.FgMagenta).Add(color.Bold, color.Underline).SprintFunc()
 	greenBold := color.New(color.FgGreen).Add(color.Bold).SprintFunc()
@@ -70,9 +78,9 @@ To prepare, make sure you have the following:
 *_OR_*
 ✴︎ The necessary %s for your warehouse
 
-_See README for warehouse-specific requirements_
+_See_ %s _for warehouse-specific requirements_:
 https://github.com/gwenwindflower/tbd
-`, greenBold(Version), pinkUnderline("existing dbt profile"), pinkUnderline("connection details"))),
+`, greenBold(Version), pinkUnderline("existing dbt profile"), pinkUnderline("connection details"), greenBold("README"))),
 		),
 
 		huh.NewGroup(
@@ -137,6 +145,7 @@ https://github.com/gwenwindflower/tbd
 					huh.NewOption("Snowflake", "snowflake"),
 					huh.NewOption("BigQuery", "bigquery"),
 					huh.NewOption("DuckDB", "duckdb"),
+					huh.NewOption("Postgres", "postgres"),
 				).
 				Value(&dfr.Warehouse),
 		).WithHideFunc(func() bool {
@@ -193,15 +202,65 @@ Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 			huh.NewInput().
 				Title("What is the *database* you want to generate?").
 				Value(&dfr.Database).
-				Placeholder("duckdb").
+				Placeholder("gimli_corp").
 				Validate(not_empty),
 			huh.NewInput().
 				Title("What is the *schema* you want to generate?").
 				Value(&dfr.Schema).
-				Placeholder("raw").
+				Placeholder("moria").
 				Validate(not_empty),
 		).WithHideFunc(func() bool {
 			return dfr.Warehouse != "duckdb"
+		}),
+
+		huh.NewGroup(
+			huh.NewInput().
+				Title("What is your Postgres *host*?").
+				Value(&dfr.Host).
+				Validate(not_empty),
+			huh.NewInput().
+				Title("What is your Postgres *port*?").
+				Value(&dfr.Port).
+				Validate(func(s string) error {
+					port, err := strconv.Atoi(s)
+					if err != nil || port < 1000 || port > 9999 {
+						return errors.New("port must be a 4-digit number")
+					}
+					return nil
+				}),
+			huh.NewInput().
+				Title("What is your Postgres *username*?").
+				Value(&dfr.Username).
+				Placeholder("galadriel").
+				Validate(not_empty),
+			huh.NewInput().
+				Title("What is your Postgres *password*?").
+				Value(&dfr.Password).
+				Validate(not_empty).
+				EchoMode(huh.EchoModePassword),
+			huh.NewInput().
+				Title("What is the *database* you want to generate?").
+				Value(&dfr.Database).
+				Placeholder("lothlorien").
+				Validate(not_empty),
+			huh.NewInput().
+				Title("What is the *schema* you want to generate?").
+				Value(&dfr.Schema).
+				Placeholder("mallorn_trees").
+				Validate(not_empty),
+			huh.NewSelect[string]().
+				Title("What ssl mode do you want to use?").
+				Value(&dfr.SslMode).
+				Options(
+					huh.NewOption("Disable", "disable"),
+					huh.NewOption("Require", "require"),
+					huh.NewOption("Verify-ca", "verify-ca"),
+					huh.NewOption("Verify-full", "verify-full"),
+					huh.NewOption("Prefer", "prefer"),
+					huh.NewOption("Allow", "allow")).
+				Validate(not_empty),
+		).WithHideFunc(func() bool {
+			return dfr.Warehouse != "postgres"
 		}),
 
 		huh.NewGroup(
@@ -212,7 +271,7 @@ Currently generates:
 ✴︎ column %s
 ✴︎ relevant %s
 
-Requires a %s stored in an env var
+_Requires a_ %s _stored in an env var_:
 Get one at https://groq.com.`, yellowItalic("Optional"), pinkUnderline("descriptions"), pinkUnderline("tests"), greenBoldItalic("Groq API key"))),
 			huh.NewConfirm().
 				Title("Do you want to infer descriptions and tests?").

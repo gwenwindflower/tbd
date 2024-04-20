@@ -8,6 +8,7 @@ require (
 	github.com/charmbracelet/huh v0.3.1-0.20240306161957-71f31c155b08
 	github.com/fatih/color v1.16.0
 	github.com/jarcoal/httpmock v1.3.1
+	github.com/lib/pq v1.10.9
 	github.com/marcboeker/go-duckdb v1.6.3
 	github.com/schollz/progressbar/v3 v3.14.2
 	github.com/snowflakedb/gosnowflake v1.9.0

@@ -24,6 +24,8 @@
 # Go workspace file
 go.work
 
+# Project specific
+build
 test_build
 tbd
 

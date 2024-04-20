@@ -10,8 +10,8 @@ type Column struct {
 type SourceTable struct {
 	DataTypeGroups map[string][]Column `yaml:"-"`
 	Name           string              `yaml:"name"`
-	Columns        []Column            `yaml:"columns"`
 	Schema         string              `yaml:"-"`
+	Columns        []Column            `yaml:"columns"`
 }
 
 type SourceTables struct {
@@ -19,13 +19,17 @@ type SourceTables struct {
 }
 
 type ConnectionDetails struct {
-	ConnType    string
+	Dataset     string
 	Username    string
 	Account     string
 	Database    string
 	Schema      string
 	Project     string
-	Dataset     string
+	ConnType    string
 	Path        string
 	ProjectName string
+	Host        string
+	Password    string
+	SslMode     string
+	Port        int
 }

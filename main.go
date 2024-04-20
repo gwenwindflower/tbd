@@ -11,8 +11,8 @@ import (
 
 type Elapsed struct {
 	DbStart           time.Time
-	DbElapsed         float64
 	ProcessingStart   time.Time
+	DbElapsed         float64
 	ProcessingElapsed float64
 }
 

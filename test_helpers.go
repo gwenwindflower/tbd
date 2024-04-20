@@ -40,6 +40,19 @@ dwarf:
       database: khazad_dum
       schema: balins_tomb
       threads: 4
+
+ent:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      port: 5432
+      user: treebeard
+      password: entmoot
+      database: fangorn
+      schema: huorns
+      threads: 2
 `)
 	tmpDir := t.TempDir()
 	err := os.Mkdir(filepath.Join(tmpDir, ".dbt"), 0755)

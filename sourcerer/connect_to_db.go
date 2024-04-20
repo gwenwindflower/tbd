@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/bigquery"
+	_ "github.com/lib/pq"
 	_ "github.com/marcboeker/go-duckdb"
 	_ "github.com/snowflakedb/gosnowflake"
 )
@@ -57,6 +58,17 @@ func (dc *DuckConn) ConnectToDb(ctx context.Context) (err error) {
 	dc.Db, err = sql.Open("duckdb", dc.Path)
 	if err != nil {
 		log.Fatalf("Could not connect to DuckDB %v\n", err)
+	}
+	return err
+}
+
+func (pgc *PgConn) ConnectToDb(ctx context.Context) (err error) {
+	_, pgc.Cancel = context.WithTimeout(ctx, 1*time.Minute)
+	defer pgc.Cancel()
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", pgc.Host, pgc.Port, pgc.Username, pgc.Password, pgc.Database, pgc.SslMode)
+	pgc.Db, err = sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatalf("Could not connect to Postgres %v\n", err)
 	}
 	return err
 }

@@ -126,3 +126,38 @@ func TestSetConnectionDetailsWithDuckDBWithoutDbtProfile(t *testing.T) {
 		t.Errorf("got %v, want %v", connectionDetails, want)
 	}
 }
+
+func TestSetConnectionDetailsPostgresWithoutDbtProfile(t *testing.T) {
+	formResponse := FormResponse{
+		UseDbtProfile:        false,
+		Warehouse:            "postgres",
+		Host:                 "localhost",
+		Port:                 "5432",
+		Username:             "treebeard",
+		Password:             "entmoot",
+		Database:             "fangorn",
+		Schema:               "huorns",
+		SslMode:              "disable",
+		GenerateDescriptions: false,
+		BuildDir:             "test_build",
+		Confirm:              true,
+	}
+	ps, err := FetchDbtProfiles()
+	if err != nil {
+		t.Errorf("Error fetching dbt profiles: %v", err)
+	}
+	cd := SetConnectionDetails(formResponse, ps)
+	want := shared.ConnectionDetails{
+		ConnType: "postgres",
+		Host:     "localhost",
+		Port:     5432,
+		Username: "treebeard",
+		Password: "entmoot",
+		Database: "fangorn",
+		Schema:   "huorns",
+		SslMode:  "disable",
+	}
+	if cd != want {
+		t.Errorf("got %v, want %v", cd, want)
+	}
+}
