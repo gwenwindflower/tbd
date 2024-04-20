@@ -93,7 +93,7 @@ _See README for warehouse-specific requirements_
 
 		huh.NewGroup(
 			huh.NewConfirm().
-				Title("Would you like to generate a profiles.yml file dfrom the info you provide next?").
+				Title("Would you like to generate a profiles.yml file?\n(from the info you provide next)").
 				Value(&dfr.CreateProfile),
 		).WithHideFunc(func() bool {
 			return dfr.UseDbtProfile
