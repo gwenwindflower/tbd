@@ -18,6 +18,13 @@ It's designed to be super fast and easy to use with a friendly TUI that fast for
 
 ### It's the **_easy button_** for dbt projects.
 
+#### Quickstart
+```bash
+brew tap gwenwindflower/homebrew-tbd
+brew install tbd
+tbd
+```
+
 ## 🔌 Supported warehouses
 
 - [x] BigQuery
@@ -108,36 +115,7 @@ I'm going to experiment very soon with using structured output conformed to dbt'
 
 ### 🌊 Example workflows
 
-`tbd` is designed to be self-explanatory, but just in case you get stuck, below are some examples of usage and the options you would select.
-
-#### ✨ Generating staging models, `_sources.yml`, and `profiles.yml` without a dbt profile
-1. Navigate to the directory you keep dbt project in (for me this is `~/dev`), or wherever you want to generate the output directory.
-2. Run `tbd`.
-3. Select 'No' for using a dbt profile.
-4. Select 'No' for scaffolding a dbt project.
-5. Choose your prefix or just hit enter to stick with 'stg'.
-6. Choose 'Yes' for generating a `profiles.yml`.
-7. Choose your warehouse.
-8. Fill out warehouse details — these should point to the _database and schema that you want to generate_.
-9. Choose 'No' for the LLM features.
-10. Enter an output directory name (it needs to either not exist yet or be empty) or just hit enter to stick with 'build'.
-11. Done!
-
-#### 🍊 Scaffolding a dbt project from an existing dbt profile
-1. Ensure that you have the profile you want configured either in `~/.dbt/profiles.yml` or the root of the directory you're going to run tbd in.
-2. Navigate to the directory you keep dbt project in (for me this is `~/dev`), or wherever you want to generate the output directory.
-3. Run `tbd`.
-4. Select 'Yes' for using a dbt profile to connect with.
-5. Select 'Yes' for scaffolding a dbt project.
-6. Choose your prefix or just hit enter to stick with 'stg'.
-7. Give your new project a name.
-8. Select the profile you want to generate models for from the list.
-9. Select the `output` from that profile you want to use (these are typically things like `prod`, `dev`, `staging` etc).
-10. Choose a schema that the profile you selected has access to read from.
-11. Enter the database that schema is in. The schema and the database can be different than the ones specificed in the profile by default, as long as the profile has access to run queries against them.
-12. Choose 'No' for the LLM featues.
-13. Enter an output directory name (it needs to either not exist yet or be empty) or just hit enter to stick with 'build'.
-14. Done!
+`tbd` is designed to be self-explanatory, but just in case you get stuck, we have a blossoming wiki [with various example workflows](https://github.com/gwenwindflower/tbd/wiki/Example-workflows) that take you through step-by-step.
 
 ## 😅 To Do
 
