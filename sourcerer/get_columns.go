@@ -77,3 +77,21 @@ func (dc *DuckConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]sha
 	}
 	return cs, nil
 }
+
+func (pgc *PgConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]shared.Column, error) {
+	var cs []shared.Column
+	q := fmt.Sprintf("SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = '%s' AND table_name = '%s'", pgc.Schema, t.Name)
+	rows, err := pgc.Db.QueryContext(ctx, q)
+	if err != nil {
+		log.Fatalf("Error fetching columns for table %s: %v\n", t.Name, err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		c := shared.Column{}
+		if err := rows.Scan(&c.Name, &c.DataType); err != nil {
+			log.Fatalf("Error scanning columns for table %s: %v\n", t.Name, err)
+		}
+		cs = append(cs, c)
+	}
+	return cs, nil
+}

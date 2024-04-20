@@ -18,34 +18,45 @@ type DbConn interface {
 }
 
 type SfConn struct {
+	Db       *sql.DB
+	Cancel   context.CancelFunc
 	Account  string
 	Username string
 	Database string
 	Schema   string
-	Db       *sql.DB
-	Cancel   context.CancelFunc
 }
 
 type BqConn struct {
-	Project string
-	Dataset string
 	Bq      *bigquery.Client
 	Cancel  context.CancelFunc
+	Project string
+	Dataset string
 }
 
 type DuckConn struct {
+	Db       *sql.DB
+	Cancel   context.CancelFunc
 	Path     string
 	Database string
 	Schema   string
+}
+
+type PgConn struct {
 	Db       *sql.DB
 	Cancel   context.CancelFunc
+	Host     string
+	Username string
+	Password string
+	Database string
+	Schema   string
+	SslMode  string
+	Port     int
 }
 
 func GetConn(cd shared.ConnectionDetails) (DbConn, error) {
 	switch cd.ConnType {
 	case "snowflake":
 		{
-			// TODO: Why do I need to use a pointer here?
 			return &SfConn{
 				Account:  strings.ToUpper(cd.Account),
 				Username: strings.ToUpper(cd.Username),
@@ -66,6 +77,18 @@ func GetConn(cd shared.ConnectionDetails) (DbConn, error) {
 				Path:     cd.Path,
 				Database: cd.Database,
 				Schema:   cd.Schema,
+			}, nil
+		}
+	case "postgres":
+		{
+			return &PgConn{
+				Host:     cd.Host,
+				Port:     cd.Port,
+				Username: cd.Username,
+				Password: cd.Password,
+				Database: cd.Database,
+				Schema:   cd.Schema,
+				SslMode:  cd.SslMode,
 			}, nil
 		}
 	default:

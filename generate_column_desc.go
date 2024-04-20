@@ -17,13 +17,13 @@ import (
 )
 
 type Payload struct {
-	Messages []Message   `json:"messages"`
+	Stop     interface{} `json:"stop"`
 	Model    string      `json:"model"`
+	Messages []Message   `json:"messages"`
 	Temp     float64     `json:"temperature"`
 	Tokens   int         `json:"max_tokens"`
 	TopP     int         `json:"top_p"`
 	Stream   bool        `json:"stream"`
-	Stop     interface{} `json:"stop"`
 }
 
 type Message struct {
@@ -32,18 +32,18 @@ type Message struct {
 }
 
 type GroqResponse struct {
-	ID      string `json:"id"`
-	Object  string `json:"object"`
-	Created int    `json:"created"`
-	Model   string `json:"model"`
-	Choices []struct {
-		Index   int `json:"index"`
-		Message struct {
+	SystemFingerprint interface{} `json:"system_fingerprint"`
+	ID                string      `json:"id"`
+	Object            string      `json:"object"`
+	Model             string      `json:"model"`
+	Choices           []struct {
+		Logprobs interface{} `json:"logprobs"`
+		Message  struct {
 			Role    string `json:"role"`
 			Content string `json:"content"`
 		} `json:"message"`
-		Logprobs     interface{} `json:"logprobs"`
-		FinishReason string      `json:"finish_reason"`
+		FinishReason string `json:"finish_reason"`
+		Index        int    `json:"index"`
 	} `json:"choices"`
 	Usage struct {
 		PromptTokens     int     `json:"prompt_tokens"`
@@ -53,7 +53,7 @@ type GroqResponse struct {
 		TotalTokens      int     `json:"total_tokens"`
 		TotalTime        float64 `json:"total_time"`
 	} `json:"usage"`
-	SystemFingerprint interface{} `json:"system_fingerprint"`
+	Created int `json:"created"`
 }
 
 // Groq API constants
@@ -156,7 +156,7 @@ func GetGroqResponse(prompt string) (GroqResponse, error) {
 				Content: prompt,
 			},
 		},
-		Model:  "Llama3-70B-8192",
+		Model:  "llama3-70b-8192",
 		Temp:   0.5,
 		Tokens: 2048,
 		TopP:   1,

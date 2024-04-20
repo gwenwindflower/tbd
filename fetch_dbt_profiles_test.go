@@ -25,4 +25,7 @@ func TestFetchDbtProfiles(t *testing.T) {
 	if profiles["dwarf"].Outputs["dev"].ConnType != "duckdb" {
 		t.Fatalf("Expected duckdb, got %s\n", profiles["dwarf"].Outputs["dev"].ConnType)
 	}
+	if profiles["ent"].Outputs["dev"].ConnType != "postgres" {
+		t.Fatalf("Expected postgres, got %s\n", profiles["ent"].Outputs["dev"].ConnType)
+	}
 }
