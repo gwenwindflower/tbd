@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"sync"
 
+	"github.com/fatih/color"
 	"github.com/gwenwindflower/tbd/shared"
 	"github.com/schollz/progressbar/v3"
 )
@@ -24,7 +25,9 @@ func PutColumnsOnTables(ctx context.Context, ts shared.SourceTables, dbc DbConn)
 	bar := progressbar.NewOptions(len(ts.SourceTables),
 		progressbar.OptionSetWidth(30),
 		progressbar.OptionShowCount(),
-		progressbar.OptionShowElapsedTimeOnFinish(),
+		progressbar.OptionOnCompletion(func() {
+			color.HiGreen("\nSource tables contructed.")
+		}),
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionSetDescription("🏎️✨"),
 	)

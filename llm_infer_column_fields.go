@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/fatih/color"
 	"github.com/gwenwindflower/tbd/shared"
 	"github.com/schollz/progressbar/v3"
 )
@@ -13,11 +14,13 @@ func InferColumnFields(llm Llm, ts shared.SourceTables) error {
 	semaphore, limiter := llm.GetRateLimiter()
 	defer limiter.Stop()
 
-	bar := progressbar.NewOptions(len(ts.SourceTables),
+	bar := progressbar.NewOptions(countColumns(ts),
 		progressbar.OptionShowCount(),
 		progressbar.OptionSetWidth(30),
-		progressbar.OptionShowElapsedTimeOnFinish(),
 		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionOnCompletion(func() {
+			color.HiGreen("\nColumn config generated.")
+		}),
 		progressbar.OptionSetDescription("🤖📝"),
 	)
 	for i := range ts.SourceTables {
@@ -45,9 +48,17 @@ func InferColumnFields(llm Llm, ts shared.SourceTables) error {
 				}
 				return nil
 			}(i, j)
+			bar.Add(1)
 		}
-		bar.Add(1)
 	}
 	wg.Wait()
 	return nil
+}
+
+func countColumns(ts shared.SourceTables) int {
+	c := 0
+	for _, t := range ts.SourceTables {
+		c += len(t.Columns)
+	}
+	return c
 }

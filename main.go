@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/gwenwindflower/tbd/sourcerer"
 )
 
@@ -49,10 +50,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v\n", err)
 	}
+	fmt.Println("Connected to database")
 	ts, err := dbc.GetSourceTables(ctx)
 	if err != nil {
 		log.Fatalf("Error getting sources: %v\n", err)
 	}
+	fmt.Println("Got source tables")
+	fmt.Println("Putting columns on tables...")
 	err = sourcerer.PutColumnsOnTables(ctx, ts, dbc)
 	if err != nil {
 		log.Fatalf("Error putting columns on tables: %v\n", err)
@@ -69,6 +73,7 @@ func main() {
 			// need to totally fail if the API provider can't be fetched
 			fmt.Printf("Error getting API provider: %v\n", err)
 		}
+		fmt.Println("Generating descriptions and tests...")
 		err = InferColumnFields(llm, ts)
 		if err != nil {
 			// Using Printf instead of log.Fatalf since the program
@@ -76,6 +81,7 @@ func main() {
 			fmt.Printf("Error inferring column fields: %v\n", err)
 		}
 	}
+	fmt.Println("Writing files...")
 	if fr.CreateProfile {
 		WriteProfile(cd, bd)
 	}
@@ -91,5 +97,6 @@ func main() {
 		log.Fatalf("Error writing files: %v\n", err)
 	}
 	e.ProcessingElapsed = time.Since(e.ProcessingStart).Seconds()
-	fmt.Printf("\n🏁 Done in %.1fs fetching data and %.1fs writing files!\nYour YAML and SQL files are in the %s directory.", e.DbElapsed, e.ProcessingElapsed, fr.BuildDir)
+	pinkUnderline := color.New(color.FgMagenta).Add(color.Bold, color.Underline).SprintFunc()
+	fmt.Printf("\n🏁 Done in %.1fs fetching data and %.1fs writing files!\nYour YAML and SQL files are in the %s directory.", e.DbElapsed, e.ProcessingElapsed, pinkUnderline(fr.BuildDir))
 }
