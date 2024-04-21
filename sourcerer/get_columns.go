@@ -34,12 +34,11 @@ func (sfc *SfConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]shar
 
 func (bqc *BqConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]shared.Column, error) {
 	var cs []shared.Column
-	qs := "SELECT column_name, data_type FROM @project.@dataset.INFORMATION_SCHEMA.COLUMNS WHERE table_name = @table"
+	// BQ does not support binding parameters to table names so we have to do string interpolation
+	qs := fmt.Sprintf("SELECT column_name, data_type FROM %s.%s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = @table", bqc.Project, bqc.Dataset)
 	q := bqc.Bq.Query(qs)
 	q.Parameters = []bigquery.QueryParameter{
 		{Name: "table", Value: t.Name},
-		{Name: "project", Value: bqc.Project},
-		{Name: "dataset", Value: bqc.Dataset},
 	}
 	it, err := q.Read(ctx)
 	if err != nil {

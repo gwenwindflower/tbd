@@ -11,8 +11,8 @@ import (
 )
 
 type FormResponse struct {
-	Path                 string
-	Username             string
+	Password             string
+	Host                 string
 	BuildDir             string
 	SslMode              string
 	Database             string
@@ -22,13 +22,14 @@ type FormResponse struct {
 	ProjectName          string
 	Warehouse            string
 	Account              string
-	GroqKeyEnvVar        string
-	Password             string
-	DbtProfileName       string
+	LlmKeyEnvVar         string
 	DbtProfileOutput     string
+	DbtProfileName       string
+	Path                 string
 	Port                 string
-	Host                 string
+	Username             string
 	Prefix               string
+	Llm                  string
 	GenerateDescriptions bool
 	ScaffoldProject      bool
 	CreateProfile        bool
@@ -57,11 +58,11 @@ func getProfileOptions(ps DbtProfiles) []huh.Option[string] {
 
 func Forms(ps DbtProfiles) (FormResponse, error) {
 	dfr := FormResponse{
-		BuildDir:      "build",
-		GroqKeyEnvVar: "GROQ_API_KEY",
-		Prefix:        "stg",
-		Host:          "localhost",
-		Port:          "5432",
+		BuildDir:     "build",
+		LlmKeyEnvVar: "OPENAI_API_KEY",
+		Prefix:       "stg",
+		Host:         "localhost",
+		Port:         "5432",
 	}
 	pinkUnderline := color.New(color.FgMagenta).Add(color.Bold, color.Underline).SprintFunc()
 	greenBold := color.New(color.FgGreen).Add(color.Bold).SprintFunc()
@@ -268,23 +269,27 @@ Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 		huh.NewGroup(
 			huh.NewNote().
 				Title(fmt.Sprintf("🤖 %s LLM generation 🦙✨", redBold("Experimental"))).
-				Description(fmt.Sprintf(`%s features via Groq.
-Currently generates: 
+				Description(fmt.Sprintf(`%s generates: 
 ✴︎ column %s
 ✴︎ relevant %s
 
-_Requires a_ %s _stored in an env var_:
-Get one at https://groq.com.`, yellowItalic("Optional"), pinkUnderline("descriptions"), pinkUnderline("tests"), greenBoldItalic("Groq API key"))),
+_Requires an_ %s _stored in an env var_.`, yellowItalic("Optionally"), pinkUnderline("descriptions"), pinkUnderline("tests"), greenBoldItalic("LLM API key"))),
 			huh.NewConfirm().
 				Title("Do you want to infer descriptions and tests?").
 				Value(&dfr.GenerateDescriptions),
 		),
 
 		huh.NewGroup(
+			huh.NewSelect[string]().
+				Options(
+					huh.NewOption("OpenAI", "openai"),
+					huh.NewOption("Groq", "groq"),
+					huh.NewOption("Anthropic", "anthropic"),
+				).Value(&dfr.Llm),
 			huh.NewInput().
-				Title("What env var holds your Groq key?").
-				Placeholder("GROQ_API_KEY").
-				Value(&dfr.GroqKeyEnvVar).
+				Title("What env var holds your LLM API key?").
+				Placeholder("OPENAI_API_KEY").
+				Value(&dfr.LlmKeyEnvVar).
 				Validate(notEmpty),
 		).WithHideFunc(func() bool {
 			return !dfr.GenerateDescriptions

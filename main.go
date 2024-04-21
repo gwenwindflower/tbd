@@ -63,7 +63,18 @@ func main() {
 	e.ProcessingStart = time.Now()
 
 	if fr.GenerateDescriptions {
-		GenerateColumnDescriptions(ts)
+		llm, err := GetLlm(fr)
+		if err != nil {
+			// Using Printf instead of log.Fatalf since the program doesn't
+			// need to totally fail if the API provider can't be fetched
+			fmt.Printf("Error getting API provider: %v\n", err)
+		}
+		err = InferColumnFields(llm, ts)
+		if err != nil {
+			// Using Printf instead of log.Fatalf since the program
+			// doesn't need to totally fail if there's an error in the column field inference
+			fmt.Printf("Error inferring column fields: %v\n", err)
+		}
 	}
 	if fr.CreateProfile {
 		WriteProfile(cd, bd)
