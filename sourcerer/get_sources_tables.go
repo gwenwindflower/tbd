@@ -13,7 +13,10 @@ import (
 func (sfc *SfConn) GetSourceTables(ctx context.Context) (shared.SourceTables, error) {
 	ts := shared.SourceTables{}
 	defer sfc.Cancel()
-	rows, err := sfc.Db.QueryContext(ctx, fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", sfc.Schema))
+	// TODO: why doesn't this work?
+	// q := `SELECT table_name FROM information_schema.tables WHERE table_schema = '?'`
+	q := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", sfc.Schema)
+	rows, err := sfc.Db.QueryContext(ctx, q)
 	if err != nil {
 		log.Fatalf("Error fetching tables: %v\n", err)
 	}
@@ -50,8 +53,8 @@ func (bqc *BqConn) GetSourceTables(ctx context.Context) (shared.SourceTables, er
 func (dc *DuckConn) GetSourceTables(ctx context.Context) (shared.SourceTables, error) {
 	ts := shared.SourceTables{}
 	defer dc.Cancel()
-	q := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", dc.Schema)
-	rows, err := dc.Db.QueryContext(ctx, q)
+	q := "SELECT table_name FROM information_schema.tables WHERE table_schema = '?'"
+	rows, err := dc.Db.QueryContext(ctx, q, dc.Schema)
 	if err != nil {
 		log.Fatalf("Error fetching tables: %v\n", err)
 	}
@@ -70,8 +73,8 @@ func (dc *DuckConn) GetSourceTables(ctx context.Context) (shared.SourceTables, e
 func (pgc *PgConn) GetSourceTables(ctx context.Context) (shared.SourceTables, error) {
 	ts := shared.SourceTables{}
 	defer pgc.Cancel()
-	q := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", pgc.Schema)
-	rows, err := pgc.Db.QueryContext(ctx, q)
+	q := "SELECT table_name FROM information_schema.tables WHERE table_schema = '$1'"
+	rows, err := pgc.Db.QueryContext(ctx, q, pgc.Schema)
 	if err != nil {
 		log.Fatalf("Error fetching tables: %v\n", err)
 	}

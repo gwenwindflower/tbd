@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/charmbracelet/huh"
 	"github.com/fatih/color"
@@ -35,7 +36,8 @@ type FormResponse struct {
 	Confirm              bool
 }
 
-var not_empty = func(s string) error {
+func notEmpty(s string) error {
+	s = strings.TrimSpace(s)
 	if len(s) == 0 {
 		return fmt.Errorf("cannot be empty, please enter a value")
 	}
@@ -94,14 +96,14 @@ https://github.com/gwenwindflower/tbd
 				Title("What *prefix* for your staging files?").
 				Value(&dfr.Prefix).
 				Placeholder("stg").
-				Validate(not_empty),
+				Validate(notEmpty),
 		),
 
 		huh.NewGroup(huh.NewInput().
 			Title("What is the *name* of your dbt project?").
 			Value(&dfr.ProjectName).
 			Placeholder("rivendell").
-			Validate(not_empty),
+			Validate(notEmpty),
 		).WithHideFunc(func() bool {
 			return !dfr.ScaffoldProject
 		}),
@@ -123,17 +125,17 @@ https://github.com/gwenwindflower/tbd
 				Title("Which *output* in that profile do you want to use?").
 				Value(&dfr.DbtProfileOutput).
 				Placeholder("dev").
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewInput().
 				Title("What *schema* do you want to generate?").
 				Value(&dfr.Schema).
 				Placeholder("raw").
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewInput().
 				Title("What *database* is that schema in?").
 				Value(&dfr.Database).
 				Placeholder("jaffle_shop").
-				Validate(not_empty),
+				Validate(notEmpty),
 		).WithHideFunc(func() bool {
 			return !dfr.UseDbtProfile
 		}),
@@ -157,22 +159,22 @@ https://github.com/gwenwindflower/tbd
 				Title("What is your username?").
 				Value(&dfr.Username).
 				Placeholder("aragorn@dunedain.king").
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewInput().
 				Title("What is your Snowflake account id?").
 				Value(&dfr.Account).
 				Placeholder("elfstone-consulting.us-west-1").
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewInput().
 				Title("What is the *schema* you want to generate?").
 				Value(&dfr.Schema).
 				Placeholder("minas-tirith").
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewInput().
 				Title("What *database* is that schema in?").
 				Value(&dfr.Database).
 				Placeholder("gondor").
-				Validate(not_empty),
+				Validate(notEmpty),
 		).WithHideFunc(func() bool {
 			return dfr.Warehouse != "snowflake"
 		}),
@@ -182,12 +184,12 @@ https://github.com/gwenwindflower/tbd
 				Title("What GCP *project id* do you want to generate?").
 				Value(&dfr.Project).
 				Placeholder("legolas_inc").
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewInput().
 				Title("What is the *dataset* you want to generate?").
 				Value(&dfr.Dataset).
 				Placeholder("mirkwood").
-				Validate(not_empty),
+				Validate(notEmpty),
 		).WithHideFunc(func() bool {
 			return dfr.Warehouse != "bigquery"
 		}),
@@ -198,17 +200,17 @@ https://github.com/gwenwindflower/tbd
 Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 				Value(&dfr.Path).
 				Placeholder("/path/to/duckdb.db").
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewInput().
 				Title("What is the *database* you want to generate?").
 				Value(&dfr.Database).
 				Placeholder("gimli_corp").
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewInput().
 				Title("What is the *schema* you want to generate?").
 				Value(&dfr.Schema).
 				Placeholder("moria").
-				Validate(not_empty),
+				Validate(notEmpty),
 		).WithHideFunc(func() bool {
 			return dfr.Warehouse != "duckdb"
 		}),
@@ -217,7 +219,7 @@ Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 			huh.NewInput().
 				Title("What is your Postgres *host*?").
 				Value(&dfr.Host).
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewInput().
 				Title("What is your Postgres *port*?").
 				Value(&dfr.Port).
@@ -232,22 +234,22 @@ Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 				Title("What is your Postgres *username*?").
 				Value(&dfr.Username).
 				Placeholder("galadriel").
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewInput().
 				Title("What is your Postgres *password*?").
 				Value(&dfr.Password).
-				Validate(not_empty).
+				Validate(notEmpty).
 				EchoMode(huh.EchoModePassword),
 			huh.NewInput().
 				Title("What is the *database* you want to generate?").
 				Value(&dfr.Database).
 				Placeholder("lothlorien").
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewInput().
 				Title("What is the *schema* you want to generate?").
 				Value(&dfr.Schema).
 				Placeholder("mallorn_trees").
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewSelect[string]().
 				Title("What ssl mode do you want to use?").
 				Value(&dfr.SslMode).
@@ -258,7 +260,7 @@ Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 					huh.NewOption("Verify-full", "verify-full"),
 					huh.NewOption("Prefer", "prefer"),
 					huh.NewOption("Allow", "allow")).
-				Validate(not_empty),
+				Validate(notEmpty),
 		).WithHideFunc(func() bool {
 			return dfr.Warehouse != "postgres"
 		}),
@@ -283,7 +285,7 @@ Get one at https://groq.com.`, yellowItalic("Optional"), pinkUnderline("descript
 				Title("What env var holds your Groq key?").
 				Placeholder("GROQ_API_KEY").
 				Value(&dfr.GroqKeyEnvVar).
-				Validate(not_empty),
+				Validate(notEmpty),
 		).WithHideFunc(func() bool {
 			return !dfr.GenerateDescriptions
 		}),
@@ -293,7 +295,7 @@ Get one at https://groq.com.`, yellowItalic("Optional"), pinkUnderline("descript
 				Title("What directory do you want to build into?\n Must be new or empty.").
 				Value(&dfr.BuildDir).
 				Placeholder("build").
-				Validate(not_empty),
+				Validate(notEmpty),
 			huh.NewConfirm().
 				Title("🚦Are you ready to do this thing?🚦").
 				Value(&dfr.Confirm),
