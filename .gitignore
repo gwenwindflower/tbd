@@ -24,9 +24,11 @@
 # Go workspace file
 go.work
 
+# build directory
+dist/
+
 # Project specific
 build
 test_build
 tbd
 
-dist/

@@ -14,6 +14,7 @@ import (
 func (sfc *SfConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]shared.Column, error) {
 	var cs []shared.Column
 
+	// TODO: figure out binding parameters issue on Snowflake so this can be done properly
 	q := fmt.Sprintf("SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = '%s' AND table_name = '%s'", sfc.Schema, t.Name)
 	rows, err := sfc.Db.QueryContext(ctx, q)
 	if err != nil {
@@ -33,6 +34,7 @@ func (sfc *SfConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]shar
 
 func (bqc *BqConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]shared.Column, error) {
 	var cs []shared.Column
+	// BQ does not support binding parameters to table names so we have to do string interpolation
 	qs := fmt.Sprintf("SELECT column_name, data_type FROM %s.%s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = @table", bqc.Project, bqc.Dataset)
 	q := bqc.Bq.Query(qs)
 	q.Parameters = []bigquery.QueryParameter{
@@ -62,8 +64,8 @@ func (bqc *BqConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]shar
 
 func (dc *DuckConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]shared.Column, error) {
 	var cs []shared.Column
-	q := fmt.Sprintf("SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = '%s' AND table_name = '%s'", dc.Schema, t.Name)
-	rows, err := dc.Db.QueryContext(ctx, q)
+	q := "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = '?' AND table_name = '?'"
+	rows, err := dc.Db.QueryContext(ctx, q, dc.Schema, t.Name)
 	if err != nil {
 		log.Fatalf("Error fetching columns for table %s: %v\n", t.Name, err)
 	}
@@ -80,8 +82,8 @@ func (dc *DuckConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]sha
 
 func (pgc *PgConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]shared.Column, error) {
 	var cs []shared.Column
-	q := fmt.Sprintf("SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = '%s' AND table_name = '%s'", pgc.Schema, t.Name)
-	rows, err := pgc.Db.QueryContext(ctx, q)
+	q := "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = '?' AND table_name = '?'"
+	rows, err := pgc.Db.QueryContext(ctx, q, pgc.Schema, t.Name)
 	if err != nil {
 		log.Fatalf("Error fetching columns for table %s: %v\n", t.Name, err)
 	}
