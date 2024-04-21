@@ -68,7 +68,6 @@ func Forms(ps DbtProfiles) (FormResponse, error) {
 	greenBold := color.New(color.FgGreen).Add(color.Bold).SprintFunc()
 	yellowItalic := color.New(color.FgHiYellow).Add(color.Italic).SprintFunc()
 	greenBoldItalic := color.New(color.FgHiGreen).Add(color.Bold).SprintFunc()
-	redBold := color.New(color.FgHiRed).Add(color.Bold).SprintFunc()
 	err := huh.NewForm(
 		huh.NewGroup(
 			huh.NewNote().
@@ -268,12 +267,12 @@ Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 
 		huh.NewGroup(
 			huh.NewNote().
-				Title(fmt.Sprintf("🤖 %s LLM generation 🦙✨", redBold("Experimental"))).
-				Description(fmt.Sprintf(`%s generates: 
+				Title(fmt.Sprintf("🤖 %s LLM generation 🦙✨", yellowItalic("Optional"))).
+				Description(fmt.Sprintf(`Infers:
 ✴︎ column %s
 ✴︎ relevant %s
 
-_Requires an_ %s _stored in an env var_.`, yellowItalic("Optionally"), pinkUnderline("descriptions"), pinkUnderline("tests"), greenBoldItalic("LLM API key"))),
+_Requires an_ %s _stored in an env var_.`, pinkUnderline("descriptions"), pinkUnderline("tests"), greenBoldItalic("API key"))),
 			huh.NewConfirm().
 				Title("Do you want to infer descriptions and tests?").
 				Value(&dfr.GenerateDescriptions),
