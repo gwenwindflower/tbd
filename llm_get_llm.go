@@ -94,13 +94,12 @@ type Anthropic struct {
 }
 
 type Payload struct {
-	Stop      interface{} `json:"stop"`
-	Model     string      `json:"model"`
-	Messages  []Message   `json:"messages"`
-	Temp      float64     `json:"temperature"`
-	MaxTokens int         `json:"max_tokens"`
-	TopP      int         `json:"top_p"`
-	Stream    bool        `json:"stream"`
+	Model     string    `json:"model"`
+	Messages  []Message `json:"messages"`
+	Temp      float64   `json:"temperature"`
+	MaxTokens int       `json:"max_tokens"`
+	TopP      int       `json:"top_p"`
+	Stream    bool      `json:"stream"`
 }
 
 type Message struct {

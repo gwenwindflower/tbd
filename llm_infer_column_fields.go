@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"sync"
 
 	"github.com/fatih/color"
@@ -9,7 +10,7 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-func InferColumnFields(llm Llm, ts shared.SourceTables) error {
+func InferColumnFields(llm Llm, ts shared.SourceTables) {
 	var wg sync.WaitGroup
 	semaphore, limiter := llm.GetRateLimiter()
 	defer limiter.Stop()
@@ -30,7 +31,7 @@ func InferColumnFields(llm Llm, ts shared.SourceTables) error {
 			<-limiter.C
 
 			wg.Add(1)
-			go func(i, j int) error {
+			go func(i, j int) {
 				defer wg.Done()
 				defer func() { <-semaphore }()
 
@@ -40,19 +41,17 @@ func InferColumnFields(llm Llm, ts shared.SourceTables) error {
 				testsPrompt := fmt.Sprintf(TESTS_PROMPT, tableName, columnName)
 				err := llm.SetDescription(descPrompt, ts, i, j)
 				if err != nil {
-					return fmt.Errorf("error setting description: %v", err)
+					log.Fatalf("Error generating descriptions: %v\n", err)
 				}
 				err = llm.SetTests(testsPrompt, ts, i, j)
 				if err != nil {
-					return fmt.Errorf("error setting tests: %v", err)
+					log.Fatalf("Error generating tests: %v\n", err)
 				}
-				return nil
+				bar.Add(1)
 			}(i, j)
-			bar.Add(1)
 		}
 	}
 	wg.Wait()
-	return nil
 }
 
 func countColumns(ts shared.SourceTables) int {

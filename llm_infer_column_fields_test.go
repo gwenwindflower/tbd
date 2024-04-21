@@ -20,16 +20,11 @@ func TestInferColumnFields(t *testing.T) {
 	if !ok {
 		t.Error("Expceted Groq LLM type")
 	}
-	err = InferColumnFields(g, ts)
-	if err != nil {
-		t.Errorf("Did not expect err infering column fields: %v", err)
-	}
-
+	InferColumnFields(g, ts)
 	info := httpmock.GetCallCountInfo()
 	if info["POST https://api.groq.com/openai/v1/chat/completions"] != 2 {
 		t.Error("expected", 2, "got", info["POST https://api.groq.com/openai/v1/chat/completions"])
 	}
-
 	expected := "lord of rivendell"
 	desc := ts.SourceTables[0].Columns[0].Description
 	if desc != expected {

@@ -74,7 +74,7 @@ func main() {
 			fmt.Printf("Error getting API provider: %v\n", err)
 		}
 		fmt.Println("Generating descriptions and tests...")
-		err = InferColumnFields(llm, ts)
+		InferColumnFields(llm, ts)
 		if err != nil {
 			// Using Printf instead of log.Fatalf since the program
 			// doesn't need to totally fail if there's an error in the column field inference

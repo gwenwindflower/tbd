@@ -3,15 +3,15 @@ package main
 import "time"
 
 func (o *OpenAI) GetRateLimiter() (semaphore chan struct{}, limiter *time.Ticker) {
-	return getLimiter(240)
-}
-
-func (a *Anthropic) GetRateLimiter() (semaphore chan struct{}, limiter *time.Ticker) {
-	return getLimiter(240)
+	return getLimiter(500)
 }
 
 func (g *Groq) GetRateLimiter() (semaphore chan struct{}, limiter *time.Ticker) {
 	return getLimiter(30)
+}
+
+func (a *Anthropic) GetRateLimiter() (semaphore chan struct{}, limiter *time.Ticker) {
+	return getLimiter(5)
 }
 
 func getLimiter(mr int) (semaphore chan struct{}, limiter *time.Ticker) {

@@ -21,7 +21,6 @@ func (o *OpenAI) GetResponse(prompt string) error {
 		MaxTokens: 2048,
 		TopP:      1,
 		Stream:    false,
-		Stop:      nil,
 	}
 	payload, err := json.Marshal(meta)
 	if err != nil {
@@ -66,7 +65,6 @@ func (o *Groq) GetResponse(prompt string) error {
 		MaxTokens: 2048,
 		TopP:      1,
 		Stream:    false,
-		Stop:      nil,
 	}
 	payload, err := json.Marshal(meta)
 	if err != nil {

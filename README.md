@@ -19,6 +19,7 @@ It's designed to be super fast and easy to use with a friendly TUI that fast for
 ### It's the **_easy button_** for dbt projects.
 
 #### Quickstart
+
 ```bash
 brew tap gwenwindflower/homebrew-tbd
 brew install tbd
@@ -37,6 +38,7 @@ If you're new to dbt, [check out the wiki](https://github.com/gwenwindflower/tbd
 - [x] DuckDB
 
 If you don't have a cloud warehouse, but want to spin up a dbt project with `tbd` I recommend either:
+
 - **BigQuery** — they have a generous free tier, authenticating with `gcloud` CLI is super easy, and `tbd` requires very few manual configurations. They also have a ton of great public datasets you can model.
 - **DuckDB** — you can work completely locally and skip the cloud altogether. You will need to find some data, but DuckDB can _very_ easily ingest CSVs, JSON, or Parquet, so if you have some raw data you want to work with, this is a great option as well.
 
@@ -59,6 +61,7 @@ go install github.com/gwenwindflower/tbd@latest
 That's it! It's a single binary and has no dependencies on `dbt` itself, for maximum speed it operates directly with your warehouse, so you don't even need to have `dbt` installed to use it. That said, it _can_ leverage the profiles in your `~/.dbt/profiles.yml` file if you have them set up, so you can use the same connection information to save yourself some typing.
 
 ## 🔐 Warehouse-specific setup
+
 `tbd` at present, for security, only supports SSO methods of authentication. Please check out the below guides for your target warehouse before using `tbd` to ensure a smooth experience.
 
 ### ❄️ Snowflake
@@ -103,13 +106,15 @@ your_build_dir/
 
 ### 🦙 LLM features
 
-`tbd` has some neat alpha features that are still in development. One of these is the ability to generate documentation and tests for your sources via LLM. It uses [Groq](https://groq.com) running `llama3-70b-8192` to do its inference. It's not perfect, but it's pretty good! It requires setting an environment variable with your Groq API key beforehand that you'll then pass the name of.
+`tbd` has some neat alpha features that infer documentation and tests for your columns. There are multiple supported LLMs via API: Groq running Llama 3 70B, Anthropic Claude 3 Opus, and OpenAI GPT-4 Turbo. They have very different rate limits (these are limitations in the API that `tbd` respects):
 
-The biggest thing to flag is that while Groq is in free beta, they have a very low rate limit on their API: 30 requests per minute. The actual inference on Groq is _super_ fast, but for now I've had to rate limit the API calls so it will take a few minutes or quite awhile depending on your schema size. Once Groq is out of beta, I'll remove the rate limit, but you'll of course have to pay for the API calls via your Groq account.
+- **Groq** 30 requests per minute
+- **Claude 3 Opus** 5 requests per minute
+- **GPT-4 Turbo** 500 request per minute
 
-I will _definitely_ be adding other LLM providers in the future, probably Anthropic Claude 3 Opus as the next one so you can choose between maximum quality (Claude) or maximum speed (Groq, when I can remove the rate limit).
+As you can see, if you have anything but a very smol schema, you should stick with OpenAI. When Groq ups their rate limit after they're out of beta, that will be the fastest option, but for now, OpenAI is the best bet. The good news is that GPT-4 Turbo is _really_ good at this task (honestly better than Claude Opus) and pretty dang fast! The results are great in my testing.
 
-I'm going to experiment very soon with using structured output conformed to dbt's JSON schema and passing entire tables, rather than iterating through columns, and see how it does with that. If it works that will be significantly faster as it can churn out entire files quickly and the rate limit will be less of a factor.
+I'm going to experiment very soon with using structured output conformed to dbt's JSON schema and passing entire tables, rather than iterating through columns, and see how it does with that. If it works that will be significantly faster as it can churn out entire files (and perhaps improve quality through having more context) and the rate limits will be less of a factor.
 
 ### 🌊 Example workflows
 
@@ -118,18 +123,20 @@ I'm going to experiment very soon with using structured output conformed to dbt'
 ## 😅 To Do
 
 - [ ] Get to 100% test coverage
-- [ ] Add Claude 3 Opus option
+- [x] Add Claude 3 Opus option
+- [x] Add OpenAI GPT-4 Turbo option
 - [x] Add support for Snowflake
 - [x] Add support for BigQuery
 - [ ] Add support for Redshift
 - [ ] Add support for Databricks
 - [ ] Add support for Postgres
 - [x] Add support for DuckDB
+- [x] Add support for MotherDuck
 - [ ] Build on Linux
 - [ ] Build on Windows
 
 ## 🤗 Contributing
 
-I welcome Discussions, Issues, and PRs! This is pre-release software and without folks using it and opening Issues or Discussions I won't be able to find the rough edges and smooth them out. So please if you get stuck open an Issue and let's figure out how to fix it! 
+I welcome Discussions, Issues, and PRs! This is pre-release software and without folks using it and opening Issues or Discussions I won't be able to find the rough edges and smooth them out. So please if you get stuck open an Issue and let's figure out how to fix it!
 
 If you're a dbt user and aren't familiar with Go, but interested in learning a bit of it, I'm also happy to help guide you through opening a PR, just let me know 💗.
