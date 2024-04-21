@@ -34,7 +34,7 @@ If you're new to dbt, [check out the wiki](https://github.com/gwenwindflower/tbd
 - [x] Snowflake
 - [ ] Redshift
 - [ ] Databricks
-- [ ] Postgres
+- [x] Postgres
 - [x] DuckDB
 
 If you don't have a cloud warehouse, but want to spin up a dbt project with `tbd` I recommend either:
@@ -129,7 +129,7 @@ I'm going to experiment very soon with using structured output conformed to dbt'
 - [x] Add support for BigQuery
 - [ ] Add support for Redshift
 - [ ] Add support for Databricks
-- [ ] Add support for Postgres
+- [x] Add support for Postgres
 - [x] Add support for DuckDB
 - [x] Add support for MotherDuck
 - [ ] Build on Linux
