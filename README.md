@@ -2,9 +2,6 @@
 
 ## 💽 A sweet and speedy code generator for dbt
 
-> [!IMPORTANT]
-> This project is still in its _very_ early stages. It should be relatively safe to use, but don't be surprised by bugs, breaking changes, or missing features. Please feel free to open issues or PRs if you have any feedback! Most importantly, be sure you're always pointing the output at an empty directory, or it may overwrite files with the same names.
-
 _**Disclaimer**: This project is not affiliated with dbt Labs in any way. It is a personal project and is not officially supported by dbt Labs. I work at dbt Labs, but I develop this project in my own time._
 
 `tbd` quickly generates code for new and existing dbt projects with a variety of features:
