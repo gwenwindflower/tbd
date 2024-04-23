@@ -131,9 +131,11 @@ your_build_dir/
 
 `tbd` has some neat alpha features that infer documentation and tests for your columns. There are multiple supported LLMs via API: Groq running Llama 3 70B, Anthropic Claude 3 Opus, and OpenAI GPT-4 Turbo. They have very different rate limits (these are limitations in the API that `tbd` respects):
 
-- **Groq** 30 requests per minute
-- **Claude 3 Opus** 5 requests per minute
-- **GPT-4 Turbo** 500 request per minute
+| Model                      | Requests per minute  |
+|----------------------------|----------------------|
+| Groq (Running Llama 3 70B) | 30                   |
+| Claude 3 Opus              | 5                    |
+| GPT-4 Turbo                | 500                  |
 
 As you can see, if you have anything but a very smol schema, you should stick with OpenAI. When Groq ups their rate limit after they're out of beta, that will be the fastest option, but for now, OpenAI is the best bet. The good news is that GPT-4 Turbo is _really_ good at this task (honestly better than Claude Opus) and pretty dang fast! The results are great in my testing.
 
