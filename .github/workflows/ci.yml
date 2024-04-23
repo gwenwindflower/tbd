@@ -15,8 +15,10 @@ jobs:
         uses: actions/setup-go@v5.0.0
         with:
           go-version: ">=1.22.1"
-      - name: Run main tests
-        run: go test
+      - name: Run `internal` tests
+        run: |
+          cd internal
+          go test
       - name: Run `sourcerer` tests
         run: |
           cd sourcerer
