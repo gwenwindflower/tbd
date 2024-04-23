@@ -13,6 +13,8 @@ _**Disclaimer**: This project is not affiliated with dbt Labs in any way. It is 
 
 It's designed to be super fast and easy to use with a friendly TUI that fast forwards you to writing meaningful dbt models as quickly as possible.
 
+Still confused? No worries! Check out the [example output diagrams](#without-scaffolding-a-dbt-project) and it will make sense.
+
 ### It's the **_easy button_** for dbt projects.
 
 #### Quickstart
@@ -120,16 +122,44 @@ It will guide you through inputting the necessary information to generate your `
 
 The output will be a directory with the following structure:
 
-```
-your_build_dir/
+### Without scaffolding a dbt project
+
+```terminal
+your/build/dir/models/staging/schema_name/
 ├── _sources.yml
-├── stg_model_a.sql
-└── etc...
+├── stg_raw_customers.sql
+├── stg_raw_items.sql
+├── stg_raw_orders.sql
+├── stg_raw_products.sql
+├── stg_raw_stores.sql
+└── stg_raw_supplies.sql
+```
+
+### With scaffolding a dbt project
+
+```terminal
+your/build/dir
+├── analyses
+├── data-tests
+├── dbt_project.yml
+├── macros
+├── models
+│   ├── marts
+│   └── staging
+│       ├── _sources.yml
+│       ├── stg_raw_customers.sql
+│       ├── stg_raw_items.sql
+│       ├── stg_raw_orders.sql
+│       ├── stg_raw_products.sql
+│       ├── stg_raw_stores.sql
+│       └── stg_raw_supplies.sql
+├── seeds
+└── snapshots
 ```
 
 ### 🦙 LLM features
 
-`tbd` has some neat alpha features that infer documentation and tests for your columns. There are multiple supported LLMs via API: Groq running Llama 3 70B, Anthropic Claude 3 Opus, and OpenAI GPT-4 Turbo. They have very different rate limits (these are limitations in the API that `tbd` respects):
+`tbd` has some neat alpha features that infer documentation and tests for your columns. There are multiple supported LLMs via API: Groq running Llama 3 70B, Anthropic Claude 3 Opus, and OpenAI GPT-4 Turbo. They have very different rate limits (these are limits in the APIs that `tbd` respects):
 
 | Model                      | Requests per minute  |
 |----------------------------|----------------------|
@@ -147,6 +177,7 @@ I'm going to experiment very soon with using structured output conformed to dbt'
 
 ## 😅 To Do
 
+### Tier 1
 - [ ] Get to 100% test coverage
 - [x] Add Claude 3 Opus option
 - [x] Add OpenAI GPT-4 Turbo option
@@ -159,6 +190,10 @@ I'm going to experiment very soon with using structured output conformed to dbt'
 - [x] Add support for MotherDuck
 - [ ] Build on Linux
 - [ ] Build on Windows
+
+### Tier 2
+
+- [ ] Add `tbd rerun` option, loading a previous form run from a config file in `~/.config/tbd` to 'rerun' on a different schema
 
 ## 🤗 Contributing
 
