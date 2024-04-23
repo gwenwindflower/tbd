@@ -35,6 +35,7 @@ func SetConnectionDetails(fr FormResponse, ps DbtProfiles) shared.ConnectionDeta
 					ConnType: profile.Outputs[fr.DbtProfileOutput].ConnType,
 					Project:  fr.Database,
 					Dataset:  fr.Schema,
+					Schema:   fr.Schema,
 				}
 			}
 		case "duckdb":
@@ -110,6 +111,7 @@ func SetConnectionDetails(fr FormResponse, ps DbtProfiles) shared.ConnectionDeta
 					ConnType: fr.Warehouse,
 					Project:  fr.Project,
 					Dataset:  fr.Dataset,
+					Schema:   fr.Schema,
 				}
 			}
 		case "duckdb":
