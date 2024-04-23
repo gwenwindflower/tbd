@@ -125,7 +125,7 @@ The output will be a directory with the following structure:
 ### Without scaffolding a dbt project
 
 ```terminal
-your/build/dir/models/staging/schema_name/
+your/build/dir/
 ├── _sources.yml
 ├── stg_raw_customers.sql
 ├── stg_raw_items.sql
