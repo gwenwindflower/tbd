@@ -7,6 +7,7 @@ import (
 
 	"github.com/gwenwindflower/tbd/shared"
 
+	dbsql "github.com/databricks/databricks-sql-go"
 	"google.golang.org/api/iterator"
 )
 
@@ -85,6 +86,26 @@ func (pgc *PgConn) GetSourceTables(ctx context.Context) (shared.SourceTables, er
 			log.Fatalf("Error scanning tables: %v\n", err)
 		}
 		table.Schema = pgc.Schema
+		ts.SourceTables = append(ts.SourceTables, table)
+	}
+	return ts, nil
+}
+
+func (dbxc *DbxConn) GetSourceTables(ctx context.Context) (shared.SourceTables, error) {
+	ts := shared.SourceTables{}
+	defer dbxc.Cancel()
+	q := "SELECT table_name FROM information_schema.tables WHERE table_schema = :p_schema"
+	rows, err := dbxc.Db.QueryContext(ctx, q, dbsql.Parameter{Name: "p_schema", Value: dbxc.Schema})
+	if err != nil {
+		log.Fatalf("Error fetching tables: %v\n", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var table shared.SourceTable
+		if err := rows.Scan(&table.Name); err != nil {
+			log.Fatalf("Error scanning tables: %v\n", err)
+		}
+		table.Schema = dbxc.Schema
 		ts.SourceTables = append(ts.SourceTables, table)
 	}
 	return ts, nil

@@ -27,6 +27,8 @@ type FormResponse struct {
 	DbtProfileName       string
 	Path                 string
 	Port                 string
+	TokenEnvVar          string
+	HttpPath             string
 	Username             string
 	Prefix               string
 	Llm                  string
@@ -61,8 +63,8 @@ func Forms(ps DbtProfiles) (FormResponse, error) {
 		BuildDir:     "build",
 		LlmKeyEnvVar: "OPENAI_API_KEY",
 		Prefix:       "stg",
-		Host:         "localhost",
 		Port:         "5432",
+		TokenEnvVar:  "DATABRICKS_TOKEN",
 	}
 	pinkUnderline := color.New(color.FgMagenta).Add(color.Bold, color.Underline).SprintFunc()
 	greenBold := color.New(color.FgGreen).Add(color.Bold).SprintFunc()
@@ -132,7 +134,7 @@ https://github.com/gwenwindflower/tbd
 				Placeholder("raw").
 				Validate(notEmpty),
 			huh.NewInput().
-				Title("What *database* is that schema in?").
+				Title("What *database/project/catalog* is that schema in?").
 				Value(&dfr.Database).
 				Placeholder("jaffle_shop").
 				Validate(notEmpty),
@@ -148,6 +150,7 @@ https://github.com/gwenwindflower/tbd
 					huh.NewOption("BigQuery", "bigquery"),
 					huh.NewOption("DuckDB", "duckdb"),
 					huh.NewOption("Postgres", "postgres"),
+					huh.NewOption("Databricks", "databricks"),
 				).
 				Value(&dfr.Warehouse),
 		).WithHideFunc(func() bool {
@@ -266,6 +269,40 @@ Relative to pwd e.g. if db is in this dir -> cool_ducks.db`).
 		}),
 
 		huh.NewGroup(
+			huh.NewInput().
+				Title("What is your Databricks *host*?").
+				Value(&dfr.Host).
+				Placeholder("dbc-12345.cloud.databricks.com").
+				Validate(notEmpty),
+			huh.NewInput().
+				Title("What is your warehouse's *HTTP path*?").
+				Value(&dfr.HttpPath).
+				Placeholder("/sql/1.0/warehouses/12345").
+				Validate(notEmpty),
+			huh.NewInput().
+				Title("What is your Databricks *username*?").
+				Value(&dfr.Username).
+				Placeholder("arwen").
+				Validate(notEmpty),
+			huh.NewInput().
+				Title("What env var holds your Databricks *Personal Access Token*?").
+				Value(&dfr.TokenEnvVar).
+				Validate(notEmpty),
+			huh.NewInput().
+				Title("What is the *catalog* you want to generate?").
+				Value(&dfr.Database).
+				Placeholder("rivendell").
+				Validate(notEmpty),
+			huh.NewInput().
+				Title("What is the *schema* you want to generate?").
+				Value(&dfr.Schema).
+				Placeholder("evenstar").
+				Validate(notEmpty),
+		).WithHideFunc(func() bool {
+			return dfr.Warehouse != "databricks"
+		}),
+
+		huh.NewGroup(
 			huh.NewNote().
 				Title(fmt.Sprintf("🤖 %s LLM generation 🦙✨", yellowItalic("Optional"))).
 				Description(fmt.Sprintf(`Infers:
@@ -280,6 +317,7 @@ _Requires an_ %s _stored in an env var_.`, pinkUnderline("descriptions"), pinkUn
 
 		huh.NewGroup(
 			huh.NewSelect[string]().
+				Title("Choose your LLM provider:").
 				Options(
 					huh.NewOption("OpenAI", "openai"),
 					huh.NewOption("Groq", "groq"),

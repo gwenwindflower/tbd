@@ -75,6 +75,7 @@ type DbtProfile struct {
 		RetryAll                   bool     `yaml:"retry_all"`
 		RetryOnDatabaseErrors      bool     `yaml:"retry_on_database_errors"`
 		ClientSessionKeepAlive     bool     `yaml:"client_session_keep_alive"`
+		HttpPath                   string   `yaml:"http_path"`
 	} `yaml:"outputs"`
 	Target string `yaml:"target"`
 }

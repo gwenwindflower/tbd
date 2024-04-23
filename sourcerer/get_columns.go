@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	dbsql "github.com/databricks/databricks-sql-go"
 	"github.com/gwenwindflower/tbd/shared"
 
 	"cloud.google.com/go/bigquery"
@@ -84,6 +85,24 @@ func (pgc *PgConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]shar
 	var cs []shared.Column
 	q := "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = '?' AND table_name = '?'"
 	rows, err := pgc.Db.QueryContext(ctx, q, pgc.Schema, t.Name)
+	if err != nil {
+		log.Fatalf("Error fetching columns for table %s: %v\n", t.Name, err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		c := shared.Column{}
+		if err := rows.Scan(&c.Name, &c.DataType); err != nil {
+			log.Fatalf("Error scanning columns for table %s: %v\n", t.Name, err)
+		}
+		cs = append(cs, c)
+	}
+	return cs, nil
+}
+
+func (dbxc *DbxConn) GetColumns(ctx context.Context, t shared.SourceTable) ([]shared.Column, error) {
+	var cs []shared.Column
+	q := "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = :p_schema AND table_name = :p_table"
+	rows, err := dbxc.Db.QueryContext(ctx, q, dbsql.Parameter{Name: "p_schema", Value: dbxc.Schema}, dbsql.Parameter{Name: "p_table", Value: t.Name})
 	if err != nil {
 		log.Fatalf("Error fetching columns for table %s: %v\n", t.Name, err)
 	}

@@ -19,17 +19,22 @@ type SourceTables struct {
 }
 
 type ConnectionDetails struct {
-	Dataset     string
-	Username    string
-	Account     string
-	Database    string
-	Schema      string
-	Project     string
-	ConnType    string
-	Path        string
-	ProjectName string
-	Host        string
-	Password    string
-	SslMode     string
-	Port        int
+	ProjectName    string
+	ConnType       string
+	Account        string
+	Database       string
+	Dataset        string
+	Project        string
+	Username       string
+	Path           string
+	Schema         string
+	Host           string
+	Password       string
+	PasswordEnvVar string
+	SslMode        string
+	Catalog        string
+	Token          string
+	TokenEnvVar    string
+	HttpPath       string
+	Port           int
 }

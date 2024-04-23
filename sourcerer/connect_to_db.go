@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/bigquery"
+	_ "github.com/databricks/databricks-sql-go"
 	_ "github.com/lib/pq"
 	_ "github.com/marcboeker/go-duckdb"
 	_ "github.com/snowflakedb/gosnowflake"
@@ -69,6 +70,17 @@ func (pgc *PgConn) ConnectToDb(ctx context.Context) (err error) {
 	pgc.Db, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatalf("Could not connect to Postgres %v\n", err)
+	}
+	return err
+}
+
+func (dbxc *DbxConn) ConnectToDb(ctx context.Context) (err error) {
+	_, dbxc.Cancel = context.WithTimeout(ctx, 1*time.Minute)
+	defer dbxc.Cancel()
+	connStr := fmt.Sprintf("token:%s@%s:443%s?catalog=%s&schema=%s", dbxc.Token, dbxc.Host, dbxc.HttpPath, dbxc.Catalog, dbxc.Schema)
+	dbxc.Db, err = sql.Open("databricks", connStr)
+	if err != nil {
+		log.Fatalf("Could not connect to Databricks %v\n", err)
 	}
 	return err
 }
