@@ -30,7 +30,7 @@ If you're new to dbt, [check out the wiki](https://github.com/gwenwindflower/tbd
 - [x] BigQuery
 - [x] Snowflake
 - [ ] Redshift
-- [ ] Databricks
+- [x] Databricks
 - [x] Postgres
 - [x] DuckDB
 
@@ -82,6 +82,32 @@ Using local DuckDB doesn't require authentication, just an existing DuckDB datab
 > [!NOTE]
 > I've built-in support for [MotherDuck](https://motherduck.com/), you just need to set an env var called `MOTHERDUCK_TOKEN` with your service token, then pass the path as `md:`, **but** until MotherDuck upgrades to v10 this requires you to use DuckDB 0.9.2 locally for compatibility. MotherDuck says the upgrade will happen any day now so hopefully this note will be removed soon!
 
+### 🐘 Postgres
+
+Postgres setup is fairly normal! It just needs a host, port, user, password, and of course a database and schema that you want to model. The default values point to a localhost instance on port 5432, but you can change that to whatever you need and it should work with cloud-hosted Postgres instances as well (though I haven't yet tested this myself). Tests have been running on Postgres 16, but `tbd` makes very standard queries to `INFORMATION_SCHEMA` and doesn't do anything fancy with the connection, so it should work with any relatively modern Postgres version probably.
+
+### 🧱 Databricks
+
+Databricks for now only works with Personal Access Token authentication. You can generate one in your Databricks account settings under the Developer tab. Put this in an environment variable called something like `DATABRICKS_TOKEN` (the default option). `tbd` will _not_ let you pass the value directly.
+
+You'll need the information found in your SQL Warehouse's 'Connection details' tab which has the Hostname and Http Path you'll need, unless you already have it in a dbt profile, then you can choose that profile, pick which catalog and schema you want to target, and you're good to go!
+
+If you're using a dbt profile, it will need to be configured for PAT authentication and referencing the token via an environment variable. The profile should look something like this:
+
+```yaml
+jaffle_shop_databricks:
+  target: dev
+  outputs:
+    dev:
+      type: databricks
+      catalog: jaffle_shop
+      schema: dbt_winnie
+      host: 1234.cloud.databricks.com
+      http_path: /sql/1.0/warehouses/56789
+      token: "{{ env_var('DATABRICKS_TOKEN') }}"
+      threads: 16
+```
+
 ## Usage
 
 The tool has a lovely TUI interface that will walk you through the necessary steps. You can run it with the following command:
@@ -125,7 +151,7 @@ I'm going to experiment very soon with using structured output conformed to dbt'
 - [x] Add support for Snowflake
 - [x] Add support for BigQuery
 - [ ] Add support for Redshift
-- [ ] Add support for Databricks
+- [x] Add support for Databricks
 - [x] Add support for Postgres
 - [x] Add support for DuckDB
 - [x] Add support for MotherDuck

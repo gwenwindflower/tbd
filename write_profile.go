@@ -10,6 +10,7 @@ import (
 )
 
 func WriteProfile(cd shared.ConnectionDetails, bd string) {
+	// TODO: List out all the possible configs for the various connection types
 	pt := `
 {{.ConnType}}:
   target: dev
@@ -34,6 +35,9 @@ func WriteProfile(cd shared.ConnectionDetails, bd string) {
       {{- if .Project}}
       project: {{.Project}}
       {{- end}}
+      {{- if .Catalog}}
+      catalog: {{.Catalog}}
+      {{- end}}
       {{- if .Schema}}
       schema: {{.Schema}}
       {{- end}}
@@ -42,6 +46,24 @@ func WriteProfile(cd shared.ConnectionDetails, bd string) {
       {{- end}}
       {{- if .Path}}
       path: {{.Path}}
+      {{- end}}
+      {{- if .SslMode}}
+      sslmode: {{.SslMode}}
+      {{- end}}
+      {{- if .Host}}
+      host: {{.Host}}
+      {{- end}}
+      {{- if .HttpPath}}
+      http_path: {{.HttpPath}}
+      {{- end}}
+      {{- if .Port}}
+      port: {{.Port}}
+      {{- end}}
+      {{- if .Password}}
+      password: {{.Password}}
+      {{- end}}
+      {{- if .TokenEnvVar}}
+      token: {{"{{"}} env_var('{{.TokenEnvVar}}') {{"}}"}}
       {{- end}}
       threads: 8
 `

@@ -53,6 +53,18 @@ type PgConn struct {
 	Port     int
 }
 
+type DbxConn struct {
+	Db       *sql.DB
+	Cancel   context.CancelFunc
+	Username string
+	Token    string
+	HttpPath string
+	Host     string
+	Port     int
+	Catalog  string
+	Schema   string
+}
+
 func GetConn(cd shared.ConnectionDetails) (DbConn, error) {
 	switch cd.ConnType {
 	case "snowflake":
@@ -89,6 +101,17 @@ func GetConn(cd shared.ConnectionDetails) (DbConn, error) {
 				Database: cd.Database,
 				Schema:   cd.Schema,
 				SslMode:  cd.SslMode,
+			}, nil
+		}
+	case "databricks":
+		{
+			return &DbxConn{
+				Username: cd.Username,
+				Token:    cd.Token,
+				HttpPath: cd.HttpPath,
+				Host:     cd.Host,
+				Catalog:  cd.Catalog,
+				Schema:   cd.Schema,
 			}, nil
 		}
 	default:

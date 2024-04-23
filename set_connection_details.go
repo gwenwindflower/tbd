@@ -4,12 +4,14 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 
 	"github.com/gwenwindflower/tbd/shared"
 )
 
 func SetConnectionDetails(fr FormResponse, ps DbtProfiles) shared.ConnectionDetails {
+	// TODO: Look into eliminating this, it's duplicative
 	var cd shared.ConnectionDetails
 	if fr.UseDbtProfile {
 		profile, err := GetDbtProfile(fr.DbtProfileName, ps)
@@ -23,7 +25,7 @@ func SetConnectionDetails(fr FormResponse, ps DbtProfiles) shared.ConnectionDeta
 					ConnType: profile.Outputs[fr.DbtProfileOutput].ConnType,
 					Username: profile.Outputs[fr.DbtProfileOutput].User,
 					Account:  profile.Outputs[fr.DbtProfileOutput].Account,
-					Database: profile.Outputs[fr.DbtProfileOutput].Database,
+					Database: fr.Database,
 					Schema:   fr.Schema,
 				}
 			}
@@ -31,7 +33,7 @@ func SetConnectionDetails(fr FormResponse, ps DbtProfiles) shared.ConnectionDeta
 			{
 				cd = shared.ConnectionDetails{
 					ConnType: profile.Outputs[fr.DbtProfileOutput].ConnType,
-					Project:  profile.Outputs[fr.DbtProfileOutput].Project,
+					Project:  fr.Database,
 					Dataset:  fr.Schema,
 				}
 			}
@@ -40,7 +42,7 @@ func SetConnectionDetails(fr FormResponse, ps DbtProfiles) shared.ConnectionDeta
 				cd = shared.ConnectionDetails{
 					ConnType: profile.Outputs[fr.DbtProfileOutput].ConnType,
 					Path:     profile.Outputs[fr.DbtProfileOutput].Path,
-					Database: profile.Outputs[fr.DbtProfileOutput].Database,
+					Database: fr.Database,
 					Schema:   fr.Schema,
 				}
 			}
@@ -58,9 +60,31 @@ func SetConnectionDetails(fr FormResponse, ps DbtProfiles) shared.ConnectionDeta
 					Port:     profile.Outputs[fr.DbtProfileOutput].Port,
 					Username: profile.Outputs[fr.DbtProfileOutput].User,
 					Password: profile.Outputs[fr.DbtProfileOutput].Password,
-					Database: profile.Outputs[fr.DbtProfileOutput].Database,
+					Database: fr.Database,
 					SslMode:  sslMode,
 					Schema:   fr.Schema,
+				}
+			}
+		case "databricks":
+			tokenEnvVar := profile.Outputs[fr.DbtProfileOutput].Token
+			re := regexp.MustCompile(`'([^']*)'`)
+			match := re.FindStringSubmatch(tokenEnvVar)
+			if len(match) > 1 {
+				tokenEnvVar = match[1]
+			} else {
+				log.Fatalf("Token value in dbt profile must be a call to env_var wrapped in single quotes \"{{ env_var('DATABRICKS_TOKEN') }}\".\n")
+			}
+			token := os.Getenv(tokenEnvVar)
+			{
+				cd = shared.ConnectionDetails{
+					ConnType:    profile.Outputs[fr.DbtProfileOutput].ConnType,
+					Host:        profile.Outputs[fr.DbtProfileOutput].Host,
+					HttpPath:    profile.Outputs[fr.DbtProfileOutput].HttpPath,
+					Username:    profile.Outputs[fr.DbtProfileOutput].User,
+					Token:       token,
+					TokenEnvVar: tokenEnvVar,
+					Catalog:     fr.Database,
+					Schema:      fr.Schema,
 				}
 			}
 		default:
@@ -121,6 +145,20 @@ func SetConnectionDetails(fr FormResponse, ps DbtProfiles) shared.ConnectionDeta
 					Database: fr.Database,
 					Schema:   fr.Schema,
 					SslMode:  fr.SslMode,
+				}
+			}
+		case "databricks":
+			token := os.Getenv(fr.TokenEnvVar)
+			{
+				cd = shared.ConnectionDetails{
+					ConnType:    fr.Warehouse,
+					Host:        fr.Host,
+					HttpPath:    fr.HttpPath,
+					Username:    fr.Username,
+					TokenEnvVar: fr.TokenEnvVar,
+					Token:       token,
+					Catalog:     fr.Database,
+					Schema:      fr.Schema,
 				}
 			}
 		default:

@@ -61,6 +61,7 @@ type DbtProfile struct {
 		Priority                   string   `yaml:"priority"`
 		Keyfile                    string   `yaml:"keyfile"`
 		ImpersonateServiceAccount  string   `yaml:"impersonate_service_account"`
+		HttpPath                   string   `yaml:"http_path"`
 		Extensions                 []string `yaml:"extensions"`
 		Scopes                     []string `yaml:"scopes"`
 		JobCreationTimeoutSeconds  int      `yaml:"job_creation_timeout_seconds"`
