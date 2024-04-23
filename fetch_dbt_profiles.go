@@ -61,6 +61,7 @@ type DbtProfile struct {
 		Priority                   string   `yaml:"priority"`
 		Keyfile                    string   `yaml:"keyfile"`
 		ImpersonateServiceAccount  string   `yaml:"impersonate_service_account"`
+		HttpPath                   string   `yaml:"http_path"`
 		Extensions                 []string `yaml:"extensions"`
 		Scopes                     []string `yaml:"scopes"`
 		JobCreationTimeoutSeconds  int      `yaml:"job_creation_timeout_seconds"`
@@ -75,7 +76,6 @@ type DbtProfile struct {
 		RetryAll                   bool     `yaml:"retry_all"`
 		RetryOnDatabaseErrors      bool     `yaml:"retry_on_database_errors"`
 		ClientSessionKeepAlive     bool     `yaml:"client_session_keep_alive"`
-		HttpPath                   string   `yaml:"http_path"`
 	} `yaml:"outputs"`
 	Target string `yaml:"target"`
 }
