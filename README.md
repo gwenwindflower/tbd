@@ -70,12 +70,42 @@ That's it! It's a single binary and has no dependencies on `dbt` itself, for max
 
 Snowflake uses `externalbrowser` SSO authentication. It requires that you have SSO set up in your warehouse, it will then open a browser tab to authenticate and refresh a token in your **local** keychain. You'll be prompted to enter _your computer's user login_ (not your Snowflake password) to retrieve the token locally from your keychain.
 
+Here's an example of a profile that works with `tbd` on Snowflake:
+
+```yaml
+lothlorien_labs:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: galadriel123
+      user: winnie@lothlorienlabs.com
+      role: transformer
+      authenticator: externalbrowser
+      database: lothlorien
+      schema: mallorn_trees
+      threads: 16
+```
+
 ### 🌯 BigQuery
 
 BigQuery requires that you have the `gcloud` [CLI installed](https://cloud.google.com/sdk/docs/install) and authenticated for whatever projects you target.
 
 ```bash
 gcloud auth application-default login
+```
+
+Here's an example of a profile that works with `tbd` on BigQuery:
+```yaml
+moria_mining:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: moria-mining
+      dataset: dbt_gimli
+      threads: 16
 ```
 
 I will likely bring in some other authentication options soon, but this is the easiest and most secure.
@@ -87,9 +117,42 @@ Using local DuckDB doesn't require authentication, just an existing DuckDB datab
 > [!NOTE]
 > I've built-in support for [MotherDuck](https://motherduck.com/), you just need to set an env var called `MOTHERDUCK_TOKEN` with your service token, then pass the path as `md:`, **but** until MotherDuck upgrades to v10 this requires you to use DuckDB 0.9.2 locally for compatibility. MotherDuck says the upgrade will happen any day now so hopefully this note will be removed soon!
 
+Here's an example of a profile that works with `tbd` on DuckDB:
+
+```yaml
+legolas_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: /Users/winnie/dev/jaffle_shop_duckdb/mirkwood.duckdb
+      database: mirkwood
+      schema: archers
+      threads: 16
+```
+
+
 ### 🐘 Postgres
 
 Postgres setup is fairly normal! It just needs a host, port, user, password, and of course a database and schema that you want to model. The default values point to a localhost instance on port 5432, but you can change that to whatever you need and it should work with cloud-hosted Postgres instances as well (though I haven't yet tested this myself). Tests have been running on Postgres 16, but `tbd` makes very standard queries to `INFORMATION_SCHEMA` and doesn't do anything fancy with the connection, so it should work with any relatively modern Postgres version probably.
+
+Here's an example of a profile that works on Postgres with `tbd`:
+
+```yaml
+gondor_security:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      port: 5432
+      user: aragorn
+      password: arw3n1sBa3
+      database: gondor
+      schema: minas_tirith
+      threads: 8
+      connect_timeout: 10
+```
 
 ### 🧱 Databricks
 
@@ -100,15 +163,15 @@ You'll need the information found in your SQL Warehouse's 'Connection details' t
 If you're using a dbt profile, it will need to be configured for PAT authentication and referencing the token via an environment variable. The profile should look something like this:
 
 ```yaml
-jaffle_shop_databricks:
+gandalf_wizardy_co:
   target: dev
   outputs:
     dev:
       type: databricks
-      catalog: jaffle_shop
-      schema: dbt_winnie
-      host: 1234.cloud.databricks.com
-      http_path: /sql/1.0/warehouses/56789
+      catalog: maiar
+      schema: wizards
+      host: 1234.gandalf.databricks.com
+      http_path: /sql/1.0/warehouses/1234
       token: "{{ env_var('DATABRICKS_TOKEN') }}"
       threads: 16
 ```
