@@ -17,6 +17,9 @@ Still confused? No worries! Check out the [example output diagrams](#without-sca
 
 ### It's the **_easy button_** for dbt projects.
 
+> [!NOTE]
+> `tbd` does not depend on or utilize dbt directly, although it can leverage its `profiles.yml` configuration files. If you're using dbt Cloud CLI, you'll have to either create a `profiles.yml` it can access or enter connection details manually. It can't access the connections configured in dbt Cloud.
+
 #### Quickstart
 
 ```bash
