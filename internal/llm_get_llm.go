@@ -121,7 +121,7 @@ func GetLlm(fr FormResponse) (Llm, error) {
 		o := &OpenAI{
 			Type:   "openai",
 			ApiKey: os.Getenv(fr.LlmKeyEnvVar),
-			Model:  "gpt-4-turbo",
+			Model:  "gpt-4o",
 			Url:    "https://api.openai.com/v1/chat/completions",
 		}
 		return o, nil
