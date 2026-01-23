@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> This is no longer necessary as dbt has evolved their CLI, and dbt Fusion contains much more helpful tooling than the original Python-based dbt Core tool did. As such, I've archived this to focus on other things! More fun Golang CLI's with the [@charmbracelet](https://github.com/charmbracelet) libraries to come though!
+
 # 🏁 tbd 🏎️✨
 
 ## 💽 A sweet and speedy code generator for dbt
